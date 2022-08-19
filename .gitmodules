@@ -10,3 +10,15 @@
 [submodule "vendor/volk"]
 	path = vendor/volk
 	url = https://github.com/zeux/volk.git
+[submodule "vendor/shaderc"]
+	path = vendor/shaderc
+	url = https://github.com/google/shaderc.git
+[submodule "vendor/glslang"]
+	path = vendor/glslang
+	url = https://github.com/KhronosGroup/glslang.git
+[submodule "vendor/SPIRV-Tools"]
+	path = vendor/SPIRV-Tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools.git
+[submodule "vendor/SPIRV-Headers"]
+	path = vendor/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git

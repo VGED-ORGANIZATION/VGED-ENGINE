@@ -1,5 +1,6 @@
-#ifndef CORE_ECS_H
-#define CORE_ECS_H
+#pragma once
+
+#include <iostream>
 
 #ifndef NDEBUG 
 #define ASSERT(condition, message) \
@@ -264,6 +265,3 @@ struct SceneView {
 };
 
 } // namespace ecs
-
-
-#endif

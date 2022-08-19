@@ -72,7 +72,8 @@ Game controller support<br>
 Sound support<br>
 Resource system for crucial assets (app icon, minimal shader to display warning messages, gamecontroller DB)<br>
 Event system<br>
-
+Layer stack<br>
+  
 ## scripting language
-Native C++ scripting and/or c# and/or Python<br>
+Native C++ scripting and/or C# and/or Python<br>
 Hot-reloading<br>

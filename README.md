@@ -32,6 +32,7 @@ Keep files short and sweet (one class per file if possible)<br>
 Parentheses, brackets, and braces () [] {} on different lines have the same indentation, e.g. <br>
 setTag()<br>
 {<br>
+  ...<br>
 }<br>
 Member fields of classes and structs start with m_ and continue with CamelCase<br>
 ## types

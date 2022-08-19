@@ -32,7 +32,7 @@ Keep files short and sweet (one class per file if possible)<br>
 Member fields of classes and structs start with m_ and continue with CamelCase<br>
 Parentheses, brackets, and braces () [] {} on different lines have the same indentation, e.g. <br>
 <pre>
-void setTag(const std::string& tag)
+void Layer::setTag(const std::string& tag)
 {
     m_Tag = tag; 
 }

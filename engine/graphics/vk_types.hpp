@@ -1,8 +1,11 @@
 #pragma once
 
 #include "../core/types.hpp"
+<<<<<<< HEAD
 #include <compare>
 #include <vulkan/vulkan_core.h>
+=======
+>>>>>>> dev
 
 namespace VGED {
     namespace Engine {
@@ -563,8 +566,13 @@ namespace VGED {
             BlendFactor dst_alpha_blend_factor = BlendFactor::ZERO;
             BlendOp alpha_blend_op = BlendOp::ADD;
             ColorComponentFlags color_write_mask = ColorComponentFlagBits::R | ColorComponentFlagBits::G | ColorComponentFlagBits::B | ColorComponentFlagBits::A;
+        };
 
-            friend auto operator<=>(BlendInfo const &, BlendInfo const &) = default;
+        enum ShaderType {
+            VERTEX = 0,
+            FRAGMENT = 1,
+            GEOMETRY = 2,
+            COMPUTE
         };
     }
 }

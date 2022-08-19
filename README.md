@@ -29,7 +29,11 @@ Try to avoid heap allocating per frame, rather stack allocate memory or prealloc
 Use references to pass arguments as much as possible<br>
 Use smart pointers to own data and pass references of those or raw pointers around to share this data when possible<br>
 Keep files short and sweet (one class per file if possible)<br>
-
+Parentheses, brackets, and braces () [] {} on different lines have the same indentation, e.g. <br>
+setTag()<br>
+{<br>
+}<br>
+Member fields of classes and structs start with m_ and continue with CamelCase<br>
 ## types
 using u8 = std::uint8_t;<br>
 using u16 = std::uint16_t;<br>

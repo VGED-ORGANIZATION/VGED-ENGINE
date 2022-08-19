@@ -1,5 +1,7 @@
 #pragma once
 
+#include "types.hpp"
+
 #include <volk.h>
 
 #define VK_NO_PROTOTYPES
@@ -13,26 +15,30 @@ namespace VGED {
         inline namespace Core {
             class Window {
             public:
-                Window(int width, int height, const char *name);
+                Window(const int &_width, const int &_height, const std::string &_name);
                 ~Window();
 
-                bool should_close() const { return glfwWindowShouldClose(m_window); }
-                void poll_events() const { glfwPollEvents(); }
-                const GLFWwindow* window() const { return m_window; }
-                int height() const { return m_height; }
-                int width() const { return m_width; }
-                const std::string& name() const { return m_name; } 
-                float aspect_ratio() const { return static_cast<float>(m_width) / static_cast<float>(m_height); }
+                Window(const Window &) = delete;
+                Window &operator=(const Window &) = delete;
 
-                // vulkan specific
-                // create_window_surface would be done with instance creation as it requires instance and should not be done here to allow multiple backends
+                bool should_close() { return glfwWindowShouldClose(window); }
+                VkExtent2D get_extent() { return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) }; }
+                bool was_window_resized() { return framebuffer_resized; }
+                void reset_window_resized_flag() { framebuffer_resized = false; }
+                GLFWwindow *get_GLFWwindow() const { return window; }
+                void create_window_surface(VkInstance instance, VkSurfaceKHR *surface);
+
+                i32 get_width() { return width; }
+                i32 get_height() { return height; }
 
             private:
-                GLFWwindow *m_window;
-                int         m_width, m_height;
-                std::string m_name;
-            };
+                static void framebuffer_resize_callback(GLFWwindow *window, int width, int height);
 
+                i32 width, height;
+                bool framebuffer_resized = false;
+                std::string name;
+                GLFWwindow *window;
+            };
         }
     }
 }

@@ -4,26 +4,33 @@
 
 namespace VGED {
     namespace Engine {
-         inline namespace Core {
-            Window::Window(int width, int height, const char *name) 
-                : m_width(width),
-                m_height(height),
-                m_name(name) {
-                if (!glfwInit()) {
-                    THROW("GLFW failed to initialize!");
-                }
+        inline namespace Core {
+            Window::Window(const int &_width, const int &_height, const std::string &_name) : width{_width}, height{_height}, name{_name} {
+                glfwInit();
                 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-                glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);  // todo: change this to true
+                glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-                m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), NULL, NULL);
-                if (!m_window) {
-                    THROW("Failed to create glfw window!");
-                }
+                window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+                glfwSetWindowUserPointer(window, this);
+                glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback);
             }
 
             Window::~Window() {
-                glfwDestroyWindow(m_window);
+                glfwDestroyWindow(window);
                 glfwTerminate();
+            }
+
+            void Window::create_window_surface(VkInstance instance, VkSurfaceKHR *surface) {
+                if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS) {
+                    throw std::runtime_error("failed to craete window surface");
+                }
+            }
+
+            void Window::framebuffer_resize_callback(GLFWwindow *_window, int width, int height) {
+                auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(_window));
+                window->framebuffer_resized = true;
+                window->width = width;
+                window->height = height;
             }
         }
     }

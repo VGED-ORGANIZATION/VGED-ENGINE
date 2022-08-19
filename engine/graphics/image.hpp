@@ -1,13 +1,14 @@
+
 #pragma once
 
+#include <cstdint>
 #include <memory>
-#include <glm/glm.hpp>
 
 #include <volk.h>
-#include <vulkan/vulkan_core.h>
+#include <glm/glm.hpp>
 
-#include "../core/types.hpp"
-
+#include "vk_types.hpp"
+#include "device.hpp"
 
 namespace VGED {
 namespace Engine {
@@ -15,25 +16,34 @@ inline namespace Graphics {
 
 
 struct ImageDescription {
-    VkFormat format;
-    VkImageType type;
+    Format format;
+    ImageType type;
     glm::ivec3 dimensions;
-    VkImageUsageFlags usage;
+    ImageUsageFlags usage;
     u32 mip_levels = 1;
     u32 array_layers = 1;
-    VkImageCreateFlagBits flags = {};
+    ImageCreateFlags flags = ImageCreateFlagBits::NONE;
 };
 
 class Image {
 public:
-    Image(std::shared_ptr<Engine::Device> _device, const ImageDescription& _description);
+    Image(
+        std::shared_ptr<Engine::Device> _device,
+        const ImageDescription& _description);
     ~Image();
 
-    void transition_image_layout(VkCommandBuffer command_buffer, VkImageLayout old_layout, VkImageLayout new_layout);
-    void transition_image_layout(VkImageLayout old_layout, VkImageLayout new_layout);
+    void transition_image_layout(
+        VkCommandBuffer command_buffer,
+        VkImageLayout old_layout,
+        VkImageLayout new_layout);
+
+    void transition_image_layout(
+        VkImageLayout old_layout,
+        VkImageLayout new_layout);
+
     void generate_mipmaps();
 
-    inline VkFormat get_format() { return description.format; }
+    inline Format get_format() { return description.format; }
 
     VkImage vk_image = {};
 private:
@@ -65,13 +75,13 @@ private:
 };
 
 struct ImageViewDescription {
-    VkImageViewType type = ImageViewType::TYPE_2D;
-    VkFormat format = VK_FORMAT_R8G8B8_USCALED;
-    VkComponentMapping swizzel_mapping = {
-        VK_COMPONENT_SWIZZLE_R,
-        VK_COMPONENT_SWIZZLE_G,
-        VK_COMPONENT_SWIZZLE_B,
-        VK_COMPONENT_SWIZZLE_A
+    ImageViewType type = ImageViewType::TYPE_2D;
+    Format format = Format::R8G8B8A8_UNORM;
+    ComponentMapping swizzel_mapping = {
+        ComponentSwizzle::R,
+        ComponentSwizzle::G,
+        ComponentSwizzle::B,
+        ComponentSwizzle::A
     };
     ImageAspectFlags aspect_mask = ImageAspectFlagBits::COLOR;
     u32 mip_levels = 1;

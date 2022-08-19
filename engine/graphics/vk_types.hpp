@@ -2,6 +2,7 @@
 
 #include "../core/types.hpp"
 #include <compare>
+#include <vulkan/vulkan_core.h>
 
 namespace VGED {
     namespace Engine {
@@ -456,6 +457,10 @@ namespace VGED {
             ComponentSwizzle g;
             ComponentSwizzle b;
             ComponentSwizzle a;
+
+            operator VkComponentMapping const&() const noexcept {
+                return *reinterpret_cast<const VkComponentMapping*>(this);
+            }
         };
 
         enum class LoadOp {

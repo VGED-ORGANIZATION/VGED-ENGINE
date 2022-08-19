@@ -17,8 +17,8 @@ namespace VGED {
             };
 
             struct QueueFamilyIndices {
-                uint32_t graphics_family{};
-                uint32_t present_family{};
+                u32 graphics_family{};
+                u32 present_family{};
                 bool graphics_family_has_value = false;
                 bool present_family_has_value = false;
                 bool is_complete() const { return graphics_family_has_value && present_family_has_value; }
@@ -29,7 +29,7 @@ namespace VGED {
                 #ifdef NDEBUG
                         const bool enable_validation_layers = true;
                 #else
-                        const bool enable_validation_layers = false;
+                        const bool enable_validation_layers = true;
                 #endif
 
                 explicit Device(Window* _window);
@@ -40,16 +40,16 @@ namespace VGED {
                 Device(Device &&) = delete;
                 Device &operator=(Device &&) = delete;
 
-                uint32_t get_graphics_queue_family() { return find_physical_queue_families().graphics_family; }
+                u32 get_graphics_queue_family() { return find_physical_queue_families().graphics_family; }
 
                 SwapChainSupportDetails get_swapchain_support() { return query_swapchain_support(vk_physical_device); }
-                uint32_t find_memory_type(uint32_t type_filter, VkMemoryPropertyFlags properties) const;
+                u32 find_memory_type(u32 type_filter, VkMemoryPropertyFlags properties) const;
                 QueueFamilyIndices find_physical_queue_families() { return find_queue_families(vk_physical_device); }
                 VkFormat find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
                 void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, MemoryFlags memory_flags, VkBuffer &vk_buffer, VmaAllocation &vma_allocation);
                 void copy_buffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
-                void copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layer_count);
+                void copy_buffer_to_image(VkBuffer buffer, VkImage image, u32 width, u32 height, u32 layer_count);
 
                 void create_image_with_info(const VkImageCreateInfo &vk_image_create_info, MemoryFlags memory_flags, VkImage &vk_image, VmaAllocation &vma_allocation);
 

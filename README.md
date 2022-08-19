@@ -1,6 +1,6 @@
 # VGED-ENGINE
 <br>
-A C++ Game Engine<br>
+A C++ Game Engine for Linux, Windows, and macOS<br>
 <br>
 Clone or download the repo and from the top level directory build using ./build.sh<br>
 
@@ -58,6 +58,7 @@ One default render sequence with a lighting renderpass (geometry, lighting, tran
 Abstraction for custom render sequences<br>
 Abstraction layer for different APIs via pure virtual functions<br>
 PBR lighting<br>
+Material system<br>
 Support for custom shaders<br>
 Ambient occlusion and global illumination<br>
 Anti-aliasing<br>
@@ -79,7 +80,9 @@ Menu/in-game GUI<br>
 Texture atlas support and texture atlas generator, spritesheet abstraction/animation<br>
 Game controller support<br>
 Sound support<br>
+Profiling/Instrumentation<br>
 Resource system for crucial assets (app icon, minimal shader to display warning messages, gamecontroller DB)<br>
+Settings manager<br>
 Event system<br>
 Layer stack<br>
 Debug logger (spdlog)<br>

@@ -15,6 +15,7 @@ Clone or download the repo and from the top level directory build using ./build.
 Main project domains: render engine, game engine, scene/game editor, application<br>
 Users add their games as an external Git submodule under ~/application<br>
 An example application is provided under ~/application/Scabb<br>
+All assets go into seperate Git submodules, e.g. ~/application/Scabb/assets<br>
 
 ## code formatting and coding guide
 CamelCase for structs and classes. snakecase for variables, functions, and file names<BR>

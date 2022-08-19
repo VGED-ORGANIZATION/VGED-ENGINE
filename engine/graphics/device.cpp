@@ -61,7 +61,7 @@ namespace VGED {
                 volkInitialize();
 
                 if (enable_validation_layers && !check_validation_layer_support()) {
-                    throw std::runtime_error("validation layers requested, but not available!");
+                    THROW("validation layers requested, but not available!");
                 }
 
                 const VkApplicationInfo vk_application_info = {
@@ -97,14 +97,14 @@ namespace VGED {
                 };
 
                 if (vkCreateInstance(&vk_instance_create_info, nullptr, &vk_instance) != VK_SUCCESS) {
-                    throw std::runtime_error("failed to create instance!");
+                    THROW("failed to create instance!");
                 }
 
                 volkLoadInstance(vk_instance);
 
                 if(enable_validation_layers) {
                     if (CreateDebugUtilsMessengerEXT(vk_instance, &vk_debug_utils_messenger_create_info, nullptr, &vk_debug_messenger) != VK_SUCCESS) {
-                        throw std::runtime_error("failed to set up debug messenger!");
+                        THROW("failed to set up debug messenger!");
                     }
                 }
             }
@@ -113,7 +113,7 @@ namespace VGED {
                 u32 device_count = 0;
                 vkEnumeratePhysicalDevices(vk_instance, &device_count, nullptr);
                 if (device_count == 0) {
-                    throw std::runtime_error("failed to find GPUs with Vulkan support!");
+                    THROW("failed to find GPUs with Vulkan support!");
                 }
                 std::cout << "Device count: " << device_count << std::endl;
                 std::vector<VkPhysicalDevice> devices(device_count);
@@ -127,7 +127,7 @@ namespace VGED {
                 }
 
                 if (vk_physical_device == VK_NULL_HANDLE) {
-                    throw std::runtime_error("failed to find a suitable GPU!");
+                    THROW("failed to find a suitable GPU!");
                 }
 
                 vkGetPhysicalDeviceProperties(vk_physical_device, &properties);
@@ -175,7 +175,7 @@ namespace VGED {
                 }
 
                 if (vkCreateDevice(vk_physical_device, &vk_device_create_info, nullptr, &vk_device) != VK_SUCCESS) {
-                    throw std::runtime_error("failed to create logical device!");
+                    THROW("failed to create logical device!");
                 }
 
                 volkLoadDevice(vk_device);
@@ -242,7 +242,7 @@ namespace VGED {
                 };
 
                 if (vkCreateCommandPool(vk_device, &vk_command_pool_create_info, nullptr, &vk_command_pool) != VK_SUCCESS) {
-                    throw std::runtime_error("failed to create command pool!");
+                    THROW("failed to create command pool!");
                 }
             }
 
@@ -384,7 +384,7 @@ namespace VGED {
                         return format;
                     }
                 }
-                throw std::runtime_error("failed to find supported format!");
+                THROW("failed to find supported format!");
             }
 
             u32 Device::find_memory_type(u32 type_filter, VkMemoryPropertyFlags properties) const {
@@ -397,7 +397,7 @@ namespace VGED {
                     }
                 }
 
-                throw std::runtime_error("failed to find suitable memory type!");
+                THROW("failed to find suitable memory type!");
             }
 
             void Device::create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, MemoryFlags memory_flags, VkBuffer &vk_buffer, VmaAllocation &vma_allocation) {

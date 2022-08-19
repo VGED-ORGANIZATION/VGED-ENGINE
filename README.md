@@ -20,7 +20,7 @@ An example application is provided under ~/application/Scabb<br>
 CamelCase for structs and classes. snakecase for variables, functions, and file names<BR>
 vk stuff will have vk prefix, language: American English, indention: four spaces<BR>
 Everything goes into namespaces<BR>
-header files are included with path+filename; some predefined paths are provided:<BR>
+Header files are included with path+filename; some predefined paths are provided:<BR>
 ~/engine<BR>
 ~/engine/platform/Vulkan<BR>
 ~/vendor<BR>

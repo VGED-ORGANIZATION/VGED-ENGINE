@@ -1,6 +1,6 @@
 #!/bin/bash
-mkdir -p build
-cd build
+mkdir -p bin
+cd bin
 cmake -S ../ -B .
 make && make Shaders && ./vged
 cd ..

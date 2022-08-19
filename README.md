@@ -74,6 +74,7 @@ Sound support<br>
 Resource system for crucial assets (app icon, minimal shader to display warning messages, gamecontroller DB)<br>
 Event system<br>
 Layer stack<br>
+Debug logger (spdlog)<br>
   
 ## scripting language
 Native C++ scripting and/or C# and/or Python<br>

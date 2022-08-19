@@ -1,5 +1,4 @@
-#ifndef CORE_DEBUG_H
-#define CORE_DEBUG_H
+#pragma once
 
 #include <stdexcept>
 #include <iostream>
@@ -20,5 +19,3 @@
 #endif
 
 #define THROW(message) std::cerr << "Error in file " << __FILE__ << "(" << __LINE__ << "): " << message << std::endl; std::terminate()
-
-#endif

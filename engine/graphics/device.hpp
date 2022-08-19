@@ -139,19 +139,7 @@ namespace VGED {
                  * @param command_buffer same command buffer that was given from the begin_single_time_command_buffer()
                  */
                 void end_single_time_command_buffer(VkCommandBuffer command_buffer) const;
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-                inline VkCommandPool get_command_pool() { return vk_command_pool; }
-                inline VkDevice device() { return vk_device; }
-                inline VkPhysicalDevice physical_device() {return vk_physical_device; }
-                inline VkSurfaceKHR surface() { return vk_surface_khr; }
-                inline VkQueue graphicsQueue() { return vk_graphics_queue; }
-                inline VkQueue presentQueue() { return vk_present_queue; }
-                inline VkInstance get_instance() { return vk_instance; }
-=======
-=======
->>>>>>> dev
+                
                 /**
                  * @brief Get the command pool object
                  * 
@@ -193,7 +181,6 @@ namespace VGED {
                  * @return VkInstance 
                  */
                 VkInstance get_instance() { return vk_instance; }
->>>>>>> dev
 
             private:
                 void create_instance();

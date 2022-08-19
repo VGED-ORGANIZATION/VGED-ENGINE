@@ -53,7 +53,7 @@ using isize = std::ptrdiff_t;<br>
 using f32 = float;<br>
 using f64 = double;<br>
 
-## Render Engine Features
+## render engine features
 One default render sequence with a lighting renderpass (geometry, lighting, transparency subpasses) and GUI renderpass (2D subpass)<br>
 Abstraction for custom render sequences<br>
 Abstraction layer for different APIs via pure virtual functions<br>
@@ -70,7 +70,7 @@ A debug GUI based on ImGUI is provided for developers<br>
 God rays, haze, dust, mist, vapor, steam, smoke, and fog<br>
 Particle system<br>
 
-## Game Engine Features
+## game engine features
 Entity-Component-System (ECS)<br>
 Scene and prefab loading/unloading<br>
 Supported file types for 3D models: glTF, Obj Wavefront, FBX<br>

@@ -7,7 +7,7 @@ set(NAME vged)
 
 message(STATUS "using ${CMAKE_GENERATOR}")
 if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
-    if (NOT MINGW_PATH) 
+    if (NOT MINGW_PATH)
       message(FATAL_ERROR "MINGW_PATH not set in .env.cmake")
     endif()
     set(USE_MINGW "True")
@@ -33,40 +33,21 @@ else()
 endif()
 
 
-# 2. Set GLFW_PATH in .env.cmake to target specific glfw
-if (DEFINED GLFW_PATH)
-  message(STATUS "Using GLFW path specified in .env")
-  set(GLFW_INCLUDE_DIRS "${GLFW_PATH}/include")
-  if (MSVC)
-    set(GLFW_LIB "${GLFW_PATH}/lib-vc2019") # 2.1 Update lib-vc2019 to use same version as your visual studio
-  elseif (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
-    message(STATUS "USING MINGW")
-    set(GLFW_LIB "${GLFW_PATH}/lib-mingw-w64") # 2.1 make sure matches glfw mingw subdirectory
-  endif()
-else()
-  find_package(glfw3 3.3 REQUIRED)
-  set(GLFW_LIB glfw)
-  message(STATUS "Found GLFW")
-endif()
-if (NOT GLFW_LIB)
-	message(FATAL_ERROR "Could not find glfw library!")
-else()
-	message(STATUS "Using glfw lib at: ${GLFW_LIB}")
-endif()
+include_directories(libs)
 
-include_directories(external)
-
-# If TINYOBJ_PATH not specified in .env.cmake, try fetching from git repo
-if (NOT TINYOBJ_PATH)
-  message(STATUS "TINYOBJ_PATH not specified in .env.cmake, using external/tinyobjloader")
-  set(TINYOBJ_PATH external/tinyobjloader)
-endif()
+# # If TINYOBJ_PATH not specified in .env.cmake, try fetching from git repo
+# if (NOT TINYOBJ_PATH)
+#   message(STATUS "TINYOBJ_PATH not specified in .env.cmake, using external/tinyobjloader")
+#   set(TINYOBJ_PATH external/tinyobjloader)
+# endif()
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
+add_subdirectory(libs)
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 
@@ -92,7 +73,7 @@ if (WIN32)
 
   target_link_directories(${PROJECT_NAME} PUBLIC
     ${Vulkan_LIBRARIES}
-    ${GLFW_LIB}
+    libs
   )
 
   target_link_libraries(${PROJECT_NAME} glfw3 vulkan-1)
@@ -102,7 +83,7 @@ elseif (UNIX)
       ${PROJECT_SOURCE_DIR}/src
       ${TINYOBJ_PATH}
     )
-    target_link_libraries(${PROJECT_NAME} glfw ${Vulkan_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} libs ${Vulkan_LIBRARIES})
 endif()
 
 
@@ -111,13 +92,13 @@ endif()
 # Find all vertex and fragment sources within shaders directory
 # taken from VBlancos vulkan tutorial
 # https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters/CMakeLists.txt
-find_program(GLSL_VALIDATOR glslangValidator HINTS 
-  ${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE} 
-  /usr/bin 
-  /usr/local/bin 
+find_program(GLSL_VALIDATOR glslangValidator HINTS
+  ${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE}
+  /usr/bin
+  /usr/local/bin
   ${VULKAN_SDK_PATH}/Bin
   ${VULKAN_SDK_PATH}/Bin32
-  $ENV{VULKAN_SDK}/Bin/ 
+  $ENV{VULKAN_SDK}/Bin/
   $ENV{VULKAN_SDK}/Bin32/
 )
 

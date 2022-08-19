@@ -60,9 +60,8 @@ Abstraction layer for different APIs via pure virtual functions<br>
 PBR lighting<br>
 Material system<br>
 Support for custom shaders<br>
-Ambient occlusion and global illumination<br>
 Anti-aliasing<br>
-Shadow Mapping and Ambient Occlusion (AO)<br>
+Shadow Mapping, Ambient Occlusion (AO), and Global illumination<br>
 Skybox<br>
 Bloom<br>
 Reflections<br>

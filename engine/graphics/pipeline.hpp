@@ -65,8 +65,11 @@ namespace VGED {
             };
 
             class RasterizationPipeline {
+            public:
                 RasterizationPipeline(const RasterizationPipelineInfo& info);
                 ~RasterizationPipeline();
+            private:
+                
             };
         }
     }

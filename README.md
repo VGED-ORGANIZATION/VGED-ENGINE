@@ -35,6 +35,7 @@ setTag()<br>
   ...<br>
 }<br>
 Member fields of classes and structs start with m_ and continue with CamelCase<br>
+
 ## types
 using u8 = std::uint8_t;<br>
 using u16 = std::uint16_t;<br>
@@ -74,6 +75,7 @@ Scene and prefab loading/unloading<br>
 Supported file types for 3D models: glTF, Obj Wavefront, FBX<br>
 Built-in movement (physics)<br>
 Menu/in-game GUI<br>
+Texture atlas support and texture atlas generator, spritesheet abstraction/animation<br>
 Game controller support<br>
 Sound support<br>
 Resource system for crucial assets (app icon, minimal shader to display warning messages, gamecontroller DB)<br>

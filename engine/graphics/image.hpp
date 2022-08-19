@@ -1,0 +1,95 @@
+#pragma once
+
+#include <memory>
+#include <glm/glm.hpp>
+
+#include <volk.h>
+#include <vulkan/vulkan_core.h>
+
+#include "../core/types.hpp"
+
+
+namespace VGED {
+namespace Engine {
+inline namespace Graphics {
+
+
+struct ImageDescription {
+    VkFormat format;
+    VkImageType type;
+    glm::ivec3 dimensions;
+    VkImageUsageFlags usage;
+    u32 mip_levels = 1;
+    u32 array_layers = 1;
+    VkImageCreateFlagBits flags = {};
+};
+
+class Image {
+public:
+    Image(std::shared_ptr<Engine::Device> _device, const ImageDescription& _description);
+    ~Image();
+
+    void transition_image_layout(VkCommandBuffer command_buffer, VkImageLayout old_layout, VkImageLayout new_layout);
+    void transition_image_layout(VkImageLayout old_layout, VkImageLayout new_layout);
+    void generate_mipmaps();
+
+    inline VkFormat get_format() { return description.format; }
+
+    VkImage vk_image = {};
+private:
+    VkImageType get_image_type(const glm::ivec3& dim);
+
+    VkDeviceMemory vk_device_memory = {}; // this will be hidden since there is usage for it outside of this class
+
+    ImageDescription description;
+    std::shared_ptr<Device> device;
+};
+
+struct SamplerDescription {
+    Filter min_filter;
+    Filter mag_filter;
+    float max_anistropy = 1.0;
+    SamplerAddressMode address_mode = SamplerAddressMode::REPEAT;
+    uint32_t mipLevels = 1;
+};
+
+class Sampler {
+public:
+    Sampler(std::shared_ptr<Engine::Device> _device, const SamplerDescription& _description);
+    ~Sampler();
+
+    VkSampler vk_sampler = {};
+private:
+    SamplerDescription description;
+    std::shared_ptr<Device> device;
+};
+
+struct ImageViewDescription {
+    VkImageViewType type = ImageViewType::TYPE_2D;
+    VkFormat format = VK_FORMAT_R8G8B8_USCALED;
+    VkComponentMapping swizzel_mapping = {
+        VK_COMPONENT_SWIZZLE_R,
+        VK_COMPONENT_SWIZZLE_G,
+        VK_COMPONENT_SWIZZLE_B,
+        VK_COMPONENT_SWIZZLE_A
+    };
+    ImageAspectFlags aspect_mask = ImageAspectFlagBits::COLOR;
+    u32 mip_levels = 1;
+    u32 array_layers = 1;
+    Image* image;
+};
+
+class ImageView {
+public:
+    ImageView(std::shared_ptr<Device> _device, const ImageViewDescription& _description);
+    ~ImageView();
+
+    VkImageView vk_image_view = {};
+private:
+    ImageViewDescription description;
+    std::shared_ptr<Device> device;
+};
+
+} // graphics
+} // Engine
+} // VGED

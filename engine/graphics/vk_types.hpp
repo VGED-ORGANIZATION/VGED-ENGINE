@@ -1,14 +1,7 @@
 #pragma once
 
 #include "../core/types.hpp"
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include <compare>
-#include <vulkan/vulkan_core.h>
-=======
->>>>>>> dev
-=======
->>>>>>> dev
 
 namespace VGED {
     namespace Engine {

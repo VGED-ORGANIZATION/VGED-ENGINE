@@ -4,7 +4,7 @@ A C++ Game Engine for Linux, Windows, and macOS<br>
 <br>
 Clone or download the repo and from the top level directory build using ./build.sh<br>
 
-## file structure and engine structure
+## File structure and engine structure
 |-application<br>
 |-engine<br>
 |-editor<br>
@@ -17,7 +17,7 @@ Users add their games as an external Git submodule under ~/application<br>
 An example application is provided under ~/application/Scabb<br>
 All assets go into seperate Git submodules, e.g. ~/application/Scabb/assets<br>
 
-## code formatting and coding guide
+## Code formatting and coding guide
 CamelCase for structs and classes. snakecase for variables, functions, and file names<BR>
 vk stuff will have vk prefix, language: American English, indention: four spaces<BR>
 Everything goes into namespaces<BR>
@@ -36,7 +36,7 @@ void Layer::setTag(const std::string& tag) {
     m_Tag = tag;
 }
 </pre>
-## types
+## Types
 using u8 = std::uint8_t;<br>
 using u16 = std::uint16_t;<br>
 using u32 = std::uint32_t;<br>
@@ -52,7 +52,7 @@ using isize = std::ptrdiff_t;<br>
 using f32 = float;<br>
 using f64 = double;<br>
 
-## render engine features
+## Planned render engine features
 One default render sequence with a lighting renderpass (geometry, lighting, transparency subpasses) and GUI renderpass (2D subpass)<br>
 Abstraction for custom render sequences<br>
 Abstraction layer for different APIs via pure virtual functions<br>
@@ -69,7 +69,7 @@ A debug GUI based on ImGUI is provided for developers<br>
 God rays, haze, dust, mist, vapor, steam, smoke, and fog<br>
 Particle system<br>
 
-## game engine features
+## Planned game engine features
 Entity-Component-System (ECS)<br>
 Scene and prefab loading/unloading<br>
 Supported file types for 3D models: glTF, Obj Wavefront, FBX<br>
@@ -85,6 +85,6 @@ Event system<br>
 Layer stack<br>
 Debug logger (spdlog)<br>
   
-## scripting language
+## Planned Sripting languages
 Native C++ scripting and/or C# and/or Python<br>
 Hot-reloading<br>

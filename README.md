@@ -12,15 +12,15 @@ Clone or download the repo and from the top level directory build using ./build.
 |-scripts<br>
 |-vendor<br>
 <br>
-Main project domains: engine (game engine and render engine), scene/game editor, application<br>
-Users add their games as external Git submodule under ~/application<br>
+Main project domains: render engine, game engine, scene/game editor, application<br>
+Users add their games as an external Git submodule under ~/application<br>
 An example application is provided under ~/application/Scabb<br>
 
 ## code formatting and coding guide
-CamelCase for structs and classes. snakecase for variables, functions and file names<BR>
+CamelCase for structs and classes. snakecase for variables, functions, and file names<BR>
 vk stuff will have vk prefix, language: American English, indention: four spaces<BR>
 Everything goes into namespaces<BR>
-header files are included with path+filename; some predefined pathes are provided:<BR>
+header files are included with path+filename; some predefined paths are provided:<BR>
 ~/engine<BR>
 ~/engine/platform/Vulkan<BR>
 ~/vendor<BR>
@@ -45,19 +45,21 @@ using f32 = float;<br>
 using f64 = double;<br>
 
 ## Render Engine Features
-One default render sequence with Lighting renderpass (geometry, lighting, transperency subpasses) and GUI renderpass (2D subpass)<br>
+One default render sequence with a lighting renderpass (geometry, lighting, transparency subpasses) and GUI renderpass (2D subpass)<br>
 Abstraction for custom render sequences<br>
-Abstraction level for different APIs<br>
+Abstraction layer for different APIs via pure virtual functions<br>
 PBR lighting<br>
-support for custom shaders<br>
+Support for custom shaders<br>
 Ambient occlusion and global illumination<br>
 Anti-aliasing<br>
-Shadow Mapping and ambient occlusion<br>
+Shadow Mapping and Ambient Occlusion (AO)<br>
 Skybox<br>
 Bloom<br>
 Reflections<br>
-Ray tracing should be used only when detected: If a render feature is implemented with ray tracing, a corresponding feature should be provided for the raster pipeline<br>
+GPU ray tracing support is detected: If a feature is implemented with ray tracing, the same feature should be provided for the raster pipeline<br>
 A debug GUI based on ImGUI is provided for developers<br>
+God rays, haze, dust, mist, vapor, steam, smoke, and fog<br>
+Particle system<br>
 
 ## Game Engine Features
 Entity-Component-System (ECS)<br>
@@ -67,7 +69,7 @@ Built-in movement (physics)<br>
 Menu/in-game GUI<br>
 Game controller support<br>
 Sound support<br>
-Resource system for crucial assets (app icon, minimal shader to display warning messages, gamecontroller db)<br>
+Resource system for crucial assets (app icon, minimal shader to display warning messages, gamecontroller DB)<br>
 Event system<br>
 
 ## scripting language

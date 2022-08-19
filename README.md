@@ -24,7 +24,8 @@ header files are included with path+filename; some predefined paths are provided
 ~/engine<BR>
 ~/engine/platform/Vulkan<BR>
 ~/vendor<BR>
-Try to avoid heap allocating per frame, use references to pass arguments as much as possible<br>
+Try to avoid heap allocating per frame, rather stack allocate memory or preallocate memory in pools<bre>
+Use references to pass arguments as much as possible<br>
 Use smart pointers to own data and pass references of those or raw pointers around to share this data<br>
 Keep files short and sweet (one class per file if possible)<br>
 

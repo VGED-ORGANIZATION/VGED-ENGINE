@@ -33,3 +33,14 @@
 
 # build files
 build/
+bin/
+compile_commands.json
+
+#libraries
+vendor/
+
+# vscode files
+.vscode/
+
+# clangd
+.cache/

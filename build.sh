@@ -1,6 +1,3 @@
 #!/bin/bash
-mkdir -p build
-cd build
-cmake -S ../ -B .
-make && make Shaders && ./vged
-cd ..
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B bin
+cmake --build bin

@@ -61,7 +61,7 @@ PBR lighting<br>
 Material system<br>
 Support for custom shaders<br>
 Anti-aliasing<br>
-Shadow Mapping, Ambient Occlusion (AO), and Global illumination<br>
+Shadow Mapping, Ambient Occlusion (AO), and Global Illumination (GI)<br>
 Skybox<br>
 Bloom<br>
 Reflections<br>

@@ -2,7 +2,7 @@
 <br>
 A C++ Game Engine for Linux, Windows, and macOS<br>
 <br>
-Clone or download the repo and from the top level directory build using ./build.sh<br>
+Clone or download the repo and from the top level directory build using "./build.sh" or "./build.sh release"<br>
 
 ## File structure and engine structure
 |-application<br>

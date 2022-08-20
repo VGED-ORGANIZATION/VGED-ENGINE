@@ -22,3 +22,6 @@
 [submodule "vendor/SPIRV-Headers"]
 	path = vendor/SPIRV-Headers
 	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+[submodule "vendor/spdlog"]
+	path = vendor/spdlog
+	url = https://github.com/gabime/spdlog

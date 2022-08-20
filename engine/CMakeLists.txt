@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11.0)
-project(Engine VERSION 0.0.1)
+project(engine VERSION 0.0.1)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp)
 
@@ -10,8 +10,10 @@ add_library(${PROJECT_NAME} ${SOURCES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 
 include_directories(${PROJECT_NAME}
+    ./
+    ../vendor/
+    ../vendor/spdlog/include/
     ${Vulkan_INCLUDE_DIRS}
-    src
 )
 
 target_link_libraries(${PROJECT_NAME}

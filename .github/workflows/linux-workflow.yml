@@ -31,4 +31,4 @@ jobs:
       run: git submodule update --init --recursive
 
     - name: compile
-      run: export MAKEFLAGS=-j8 && ./build.sh
+      run: mkdir build && cd build && cmake .. && export MAKEFLAGS=-j8 && make VERBOSE=1

@@ -4,10 +4,10 @@
 
 using namespace VGED::Engine;
 
-int _main() {
+int main() {
 
     VGED::Log::init();
-    LOG_APP_INFO("Vulkan Game Engine Dev!");
+    VGED_INFO("Vulkan Game Engine Dev!");
 
     Window window(1280, 720, "VGED Engine");
     Device device(&window);

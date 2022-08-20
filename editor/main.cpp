@@ -1,11 +1,11 @@
-#include <iostream>
+#include "vged.hpp"
 
 #include "first_app.hpp"
 
 int main() {
     VGED::Log::init();
 
-    std::cout << "Vulkan Game Engine Dev!\n";
+    VGED_INFO("Vulkan Game Engine Dev!");
 
     lve::FirstApp app{};
 

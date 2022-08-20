@@ -4,7 +4,7 @@
 
 using namespace VGED::Engine;
 
-int _main() {
+int main() {
 
     VGED::Log::init();
     LOG_APP_INFO("Vulkan Game Engine Dev!");

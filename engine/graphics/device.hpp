@@ -182,6 +182,13 @@ namespace VGED {
                  */
                 VkInstance get_instance() { return vk_instance; }
 
+                /**
+                 * @brief Gets the physical device
+                 * 
+                 * @return uVkPhysicalDevice
+                 */
+                VkPhysicalDevice physical_device() { return vk_physical_device; }
+
             private:
                 void create_instance();
                 void create_surface();

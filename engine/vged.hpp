@@ -24,7 +24,7 @@
 #pragma once
 
 #include <iostream>
-#include "log/log.hpp"
+#include "core/debug.hpp"
 
 #undef far
 #undef near
@@ -32,21 +32,8 @@
 #undef CreateDirectory
 #undef CreateWindow
 
-#define ASSERT(x) if (!(x)) std::cout << " (ASSERT on line number " << __LINE__ << " in file " << __FILE__ << ")" << std::endl;
 #define memberSize(type, member) sizeof(((type *)0)->member)
 #define BIT(x) (1 << (x))
-
-#define LOG_CORE_TRACE(...)     VGED::Log::getLogger()->trace(__VA_ARGS__)
-#define LOG_CORE_INFO(...)      VGED::Log::getLogger()->info(__VA_ARGS__)
-#define LOG_CORE_WARN(...)      VGED::Log::getLogger()->warn(__VA_ARGS__)
-#define LOG_CORE_ERROR(...)     VGED::Log::getLogger()->error(__VA_ARGS__)
-#define LOG_CORE_CRITICAL(...)  VGED::Log::getLogger()->critical(__VA_ARGS__)
-
-#define LOG_APP_TRACE(...)      VGED::Log::getAppLogger()->trace(__VA_ARGS__)
-#define LOG_APP_INFO(...)       VGED::Log::getAppLogger()->info(__VA_ARGS__)
-#define LOG_APP_WARN(...)       VGED::Log::getAppLogger()->warn(__VA_ARGS__)
-#define LOG_APP_ERROR(...)      VGED::Log::getAppLogger()->error(__VA_ARGS__)
-#define LOG_APP_CRITICAL(...)   VGED::Log::getAppLogger()->critical(__VA_ARGS__)
 
 using u8 = std::uint8_t;
 using u16 = std::uint16_t;

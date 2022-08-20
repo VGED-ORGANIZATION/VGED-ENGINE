@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "log/log.hpp"
+#include "log.hpp"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>

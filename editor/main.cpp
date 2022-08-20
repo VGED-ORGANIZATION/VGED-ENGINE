@@ -3,6 +3,8 @@
 #include "first_app.hpp"
 
 int main() {
+    VGED::Log::init();
+
     std::cout << "Vulkan Game Engine Dev!\n";
 
     lve::FirstApp app{};

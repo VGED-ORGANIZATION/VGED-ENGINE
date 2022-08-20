@@ -14,8 +14,27 @@
 namespace VGED {
     namespace Engine {
         inline namespace Graphics {
-            static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData) {
-                std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+            static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
+                                                                VkDebugUtilsMessageTypeFlagsEXT messageType, 
+                                                                const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, 
+                                                                void *pUserData) {
+                if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+                    VGED_ENGINE_INFO(pCallbackData->pMessage);
+                }
+                if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+                    VGED_ENGINE_ERROR(pCallbackData->pMessage);
+                }
+                if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+                    VGED_ENGINE_WARN(pCallbackData->pMessage);
+                }
+
+                // should keep a way to disable these 2
+                if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+                    VGED_ENGINE_INFO(pCallbackData->pMessage);
+                }
+                if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT) {
+                    VGED_ENGINE_INFO(pCallbackData->pMessage);
+                }
                 return VK_FALSE;
             }
 

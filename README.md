@@ -18,7 +18,7 @@ An example application is provided under ~/application/Scabb<br>
 All assets go into seperate Git submodules, e.g. ~/application/Scabb/assets<br>
 
 ## Code formatting and coding guide
-CamelCase for structs and classes. snakecase for variables, functions, and file names<BR>
+PascalCase for structs and classes. snakecase for variables, functions, and file names<BR>
 vk stuff will have vk prefix, language: American English, indention: four spaces<BR>
 Everything goes into namespaces<BR>
 Header files are included with path+filename; some predefined paths are provided:<BR>
@@ -29,7 +29,7 @@ Try to avoid heap allocating per frame, rather stack allocate memory or prealloc
 Use references to pass arguments as much as possible<br>
 Use smart pointers to own data and pass references of those or raw pointers around to share this data when possible<br>
 Keep files short and sweet (one class per file if possible)<br>
-Member fields of classes and structs start with m_ and continue with CamelCase<br>
+Member fields of classes and structs start with m_ and continue with PascalCase<br>
 The formatting of opening and closing parentheses, brackets, and braces () [] {} is as follows <br>
 <pre>
 void Layer::setTag(const std::string& tag) {

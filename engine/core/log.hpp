@@ -33,7 +33,14 @@ namespace VGED
 #define VGED_ENGINE_WARN(...) ::VGED::Log::getLogger()->warn(__VA_ARGS__)
 #define VGED_ENGINE_ERROR(...) ::VGED::Log::getLogger()->error(__VA_ARGS__)
 #define VGED_ENGINE_FATAL(...) ::VGED::Log::getLogger()->fatal(__VA_ARGS__)
+#elif
+#define VGED_ENGINE_TRACE(...) 
+#define VGED_ENGINE_INFO(...) 
+#define VGED_ENGINE_WARN(...) 
+#define VGED_ENGINE_ERROR(...) 
+#define VGED_ENGINE_FATAL(...) 
 #endif
+
 
 #define VGED_TRACE(...) ::VGED::Log::getAppLogger()->trace(__VA_ARGS__)
 #define VGED_INFO(...) ::VGED::Log::getAppLogger()->info(__VA_ARGS__)

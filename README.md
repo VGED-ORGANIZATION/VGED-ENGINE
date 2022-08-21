@@ -2,7 +2,10 @@
 <br>
 A C++ Game Engine for Linux, Windows, and macOS<br>
 <br>
-Clone or download the repo and from the top level directory build using "./build.sh" or "./build.sh release"<br>
+## Install
+Clone or download the repo. To clone the repo, use: git clone --recurse-submodules https://github.com/VGED-ORGANIZATION/VGED-ENGINE<br>
+Under Linux, build using "./build.sh" (debug) or "./build.sh -v release" (debug, verbose)<br>
+Dependencies are described further down.<br>
 
 ## File structure and engine structure
 |-application<br>
@@ -88,3 +91,13 @@ Debug logger (spdlog)<br>
 ## Planned Sripting languages
 Native C++ scripting and/or C# and/or Python<br>
 Hot-reloading<br>
+
+## Dependencies
+Install the Vulkan SDK, for example on Ubuntu with: <br>
+wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add - && sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-focal.list http://packages.lunarg.com/vulkan/lunarg-vulkan-focal.list &&
+sudo apt update && sudo apt install vulkan-sdk<br>
+<br>
+Install dependencies, for example on Ubuntu with: <br>
+sudo apt install git build-essential xorg-dev libxrandr-dev libvulkan-dev gcc-10
+<br>
+The project is using C++20, be sure your compiler supports it. For gcc, version 10 or higher is recommended.

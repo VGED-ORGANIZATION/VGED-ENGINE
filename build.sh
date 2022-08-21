@@ -1,6 +1,15 @@
 #!/bin/bash
 
 target=debug
+verboseOutput=false
+
+while getopts v:verbose: flag
+do
+    case "${flag}" in
+        v) verboseOutput=true;;
+        a) verboseOutput=true;;
+    esac
+done
 
 if [[ $1 = "release" ]]
 then
@@ -16,4 +25,11 @@ else
   echo "Building debug target"
   cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 fi
-cd build && make VERBOSE=1
+cd build
+echo $verboseOutput
+if [[ $verboseOutput = "true" ]]
+then
+  make VERBOSE=1
+else
+  make
+fi

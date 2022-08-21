@@ -1,22 +1,19 @@
-#include <iostream>
+#include "vged.hpp"
 
-#include "../engine/graphics/device.hpp"
-#include "GLFW/glfw3.h"
-
-#include "core/log.hpp"
-
-using namespace VGED::Engine;
+#include "first_app.hpp"
 
 int main() {
     VGED::Log::init();
 
-    std::cout << "Vulkan Game Engine Dev!\n";
+    VGED_INFO("Vulkan Game Engine Dev!");
 
-    Window window(1280, 720, "VGED Engine");
-    Device device(&window);
+    lve::FirstApp app{};
 
-    while(!window.should_close()) {
-        glfwPollEvents();
+    try {
+        app.run();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
     }
 
     return 0;

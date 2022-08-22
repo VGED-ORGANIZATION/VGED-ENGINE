@@ -1,10 +1,10 @@
 # VGED-ENGINE
 <br>
-A C++ Game Engine for Linux, Windows, and macOS<br>
+A C++ Game Engine for Linux and Windows<br>
 <br>
 ## Install
 Clone or download the repo. To clone the repo, use: git clone --recurse-submodules https://github.com/VGED-ORGANIZATION/VGED-ENGINE<br>
-Under Linux, build using "./build.sh" (debug) or "./build.sh -v release" (debug, verbose)<br>
+Under Linux, build using "./build.sh" (debug) or "./build.sh -v release" (release, verbose)<br>
 Dependencies are described further down.<br>
 
 ## File structure and engine structure

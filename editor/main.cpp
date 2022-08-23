@@ -1,20 +1,22 @@
 #include "vged.hpp"
 
-#include "first_app.hpp"
+#include "editor_app.hpp"
+
+using namespace VGED;
 
 int main() {
-    VGED::Log::init();
+	VGED::Engine::Core::Log::init();
 
-    VGED_INFO("Vulkan Game Engine Dev!");
+	VGED_INFO("Vulkan Game Engine Dev!");
 
-    lve::FirstApp app{};
+	VGED::Editor::EditorApp app{};
 
-    try {
-        app.run();
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << '\n';
-        return EXIT_FAILURE;
-    }
+	try {
+		app.run();
+	} catch (const std::exception &e) {
+		std::cerr << e.what() << '\n';
+		return EXIT_FAILURE;
+	}
 
-    return 0;
+	return 0;
 }

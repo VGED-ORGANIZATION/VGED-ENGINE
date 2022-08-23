@@ -20,7 +20,11 @@ target_link_libraries(${PROJECT_NAME}
     ${Vulkan_LIBRARIES} 
     glfw
     glm
+    volk
+    VulkanMemoryAllocator
+    shaderc
     imgui
+    tinygltf
 )
 
 # ############## Build SHADERS #######################

@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "log.hpp"
+
 #ifndef NDEBUG 
 #define ASSERT(condition, message) \
     do { \

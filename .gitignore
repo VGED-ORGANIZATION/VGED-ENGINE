@@ -33,9 +33,17 @@
 
 # build files
 build/
+cmake-build-debug/
+bin/
+compile_commands.json
+
+#libraries
+# vendor/
 
 # vscode files
 .vscode/
 
 # clangd
 .cache/
+
+.idea/

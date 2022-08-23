@@ -28,7 +28,8 @@ then
   cd build/Release
 else
   echo "Building debug target"
-  cmake -S . -B build/Debug -DCMAKE_BUILD_TYPE=Debug
+  cmake -S . -B build/Debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+  mv build/Debug/compile_commands.json compile_commands.json
   cd build/Debug
 fi
 

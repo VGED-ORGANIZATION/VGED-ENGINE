@@ -2,32 +2,21 @@
 
 DEBUGGER = gdb
 
-BUILDFDR = bin
-EXEC = vged
+BUILDFDR = bin/Debug
+EXEC = editor
 
 default:
-	cp -r Config/* bin/
-	make -s --quiet -C $(BUILDFDR)
+	./build.sh
 
 run:
 	./$(BUILDFDR)/$(EXEC)
 
-test:
-	./$(BUILDFDR)/$(EXEC) --test
 valgrind:
 	valgrind --leak-check=full ./$(BUILDFDR)/$(EXEC) --test
-
-noshade:
-	./$(BUILDFDR)/$(EXEC) --delete-shader-cache
 
 debug:
 	cd $(BUILDFDR)
 	$(DEBUGGER) $(BUILDFDR)/$(EXEC)
-
-# use dmalloc sometimes because memory is hard
-dmalloc:
-	dmalloc -g -V -l malloclog -i 1 high
-	./$(BUILDFDR)/$(EXEC)
 
 cmake:
 	mkdir -p $(BUILDFDR)

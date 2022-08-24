@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories(${PROJECT_NAME}
     ../../engine
+    ../../vendor/
     ../../vendor/spdlog/include
 )
 

@@ -24,13 +24,9 @@ namespace VGED {
 				void render(FrameInfo &frameInfo);
 
 			private:
-				void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-				void createPipeline(VkRenderPass renderPass);
-
 				Device &device;
 
-				std::unique_ptr<Pipeline> lvePipeline;
-				VkPipelineLayout pipelineLayout;
+				std::unique_ptr<RasterPipeline> pipeline;
 			};
 		}
 	}

@@ -3,7 +3,6 @@
 #include "../graphics/camera.hpp"
 #include "../graphics/device.hpp"
 #include "../graphics/frame_info.hpp"
-#include "../graphics/game_object.hpp"
 #include "../graphics/pipeline.hpp"
 
 #include <memory>
@@ -23,13 +22,9 @@ namespace VGED {
 				void renderGameObjects(FrameInfo &frameInfo);
 
 			private:
-				void createPipelineLayout(std::vector<VkDescriptorSetLayout> setLayouts);
-				void createPipeline(VkRenderPass renderPass);
-
 				Device &device;
 
-				std::unique_ptr<Pipeline> lvePipeline;
-				VkPipelineLayout pipelineLayout;
+				std::unique_ptr<RasterPipeline> pipeline;
 			};
 		}
 	}

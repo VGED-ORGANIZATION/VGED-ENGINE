@@ -2,12 +2,17 @@
 
 #include "../core/window.hpp"
 
-#define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
+#include <volk.h>
 #define VK_NO_PROTOTYPES
+#include <vulkan/vulkan.h>
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #include <vk_mem_alloc.h>
 
 #include <string>
 #include <vector>
+
+#include "vk_types.hpp"
 
 namespace VGED {
 	namespace Engine {
@@ -51,7 +56,7 @@ namespace VGED {
 				VkInstance instance() { return vk_instance; }
 				VkPhysicalDevice physical_device() { return vk_physical_device; }
 				uint32_t graphics_queue_family() { return findPhysicalQueueFamilies().graphics_family; }
-				VmaAllocator allocator() { return vma_allocator; }
+				VmaAllocator& allocator() { return vma_allocator; }
 
 				SwapChainSupportDetails get_swap_chain_support() { return query_swap_chain_support(vk_physical_device); }
 				uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -59,7 +64,6 @@ namespace VGED {
 				VkFormat find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
 				// Buffer Helper Functions
-				void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
 				VkCommandBuffer begin_single_time_commands();
 				void end_single_time_commands(VkCommandBuffer commandBuffer);
 				void copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
@@ -91,14 +95,14 @@ namespace VGED {
 				VkInstance vk_instance = {};
 				VkDebugUtilsMessengerEXT vk_debug_utils_messenger_ext = {};
 				VkPhysicalDevice vk_physical_device = {};
-				VGED::Engine::Window &window;
+				Window &window;
 				VkCommandPool vk_command_pool = {};
 
 				VkDevice vk_device = {};
 				VkSurfaceKHR vk_surface_khr = {};
 				VkQueue vk_graphics_queue = {};
 				VkQueue vk_present_queue = {};
-				VolkDeviceTable volk_device_table = {};
+				//VolkDeviceTable volk_device_table = {};
 				VmaAllocator vma_allocator = {};
 
 				const std::vector<const char *> validation_layers = { "VK_LAYER_KHRONOS_validation" };

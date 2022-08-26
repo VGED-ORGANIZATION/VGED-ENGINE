@@ -37,7 +37,7 @@ namespace VGED {
 		void EditorApp::run() {
 			std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (auto &uboBuffer : uboBuffers) {
-				uboBuffer = std::make_unique<Buffer>(lveDevice, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+				uboBuffer = std::make_unique<Buffer>(lveDevice, sizeof(GlobalUbo), 1, MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE);
 				uboBuffer->map();
 			}
 
@@ -61,7 +61,7 @@ namespace VGED {
 
 			std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (int i = 0; i < globalDescriptorSets.size(); i++) {
-				auto bufferInfo = uboBuffers[i]->descriptorInfo();
+				auto bufferInfo = uboBuffers[i]->descriptor_info();
 				DescriptorWriter(*globalSetLayout, *globalPool).writeBuffer(0, &bufferInfo).writeImage(1, &imageInfo).build(globalDescriptorSets[i]);
 			}
 
@@ -105,7 +105,7 @@ namespace VGED {
 					ubo.view = camera.getView();
 					ubo.inverseView = camera.getInverseView();
 					pointLightSystem.update(frameInfo, ubo);
-					uboBuffers[frameIndex]->writeToBuffer(&ubo);
+					uboBuffers[frameIndex]->write_to_buffer(&ubo);
 					uboBuffers[frameIndex]->flush();
 
 					// render

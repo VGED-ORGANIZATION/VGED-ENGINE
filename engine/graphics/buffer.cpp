@@ -7,9 +7,9 @@
 
 #include "buffer.hpp"
 
-// std
 #include <cassert>
 #include <cstring>
+#include <limits>
 
 namespace VGED {
 	namespace Engine {
@@ -23,24 +23,62 @@ namespace VGED {
 			 *
 			 * @return VkResult of the buffer mapping call
 			 */
-			VkDeviceSize Buffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment) {
+			VkDeviceSize Buffer::get_alignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment) {
 				if (minOffsetAlignment > 0) {
 					return (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1);
 				}
 				return instanceSize;
 			}
 
-			Buffer::Buffer(Device &_device, VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment)
-				: device{ _device }, instanceSize{ instanceSize }, instanceCount{ instanceCount }, usageFlags{ usageFlags }, memoryPropertyFlags{ memoryPropertyFlags } {
-				alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
-				bufferSize = alignmentSize * instanceCount;
-				device.create_buffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, memory);
+			Buffer::Buffer(Device &_device, VkDeviceSize instanceSize, uint32_t instanceCount, MemoryFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment)
+				: device{ _device }, instance_size{ instanceSize }, instance_count{ instanceCount }, memory_property_flags{ memoryPropertyFlags } {
+				alignment_size = get_alignment(instanceSize, minOffsetAlignment);
+				buffer_size = alignment_size * instanceCount;
+				
+				
+				VkBufferUsageFlags usage =
+					VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+					VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+					VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT |
+					VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT |
+					VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
+					VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+					VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
+					VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+					VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT |
+					VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT |
+					VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT |
+					VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT |
+					VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR |
+					VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
+					VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
+
+                VkBufferCreateInfo vk_buffer_create_info = {
+                        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+                        .pNext = nullptr,
+                        .flags = 0,
+                        .size = buffer_size,
+                        .usage = usage,
+                        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+                        .queueFamilyIndexCount = 0,
+                        .pQueueFamilyIndices = nullptr
+                };
+
+                VmaAllocationCreateInfo vma_allocation_create_info = {
+                        .flags = static_cast<VmaAllocationCreateFlags>(memory_property_flags),
+                        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
+                        .memoryTypeBits = std::numeric_limits<u32>::max(),
+                        .pool = nullptr,
+                        .pUserData = nullptr,
+                        .priority = 0.5f,
+                };
+
+                vmaCreateBuffer(device.allocator(), &vk_buffer_create_info, &vma_allocation_create_info, &vk_buffer, &vma_allocation, nullptr);
 			}
 
 			Buffer::~Buffer() {
 				unmap();
-				vkDestroyBuffer(device.device(), buffer, nullptr);
-				vkFreeMemory(device.device(), memory, nullptr);
+				vmaDestroyBuffer(device.allocator(), vk_buffer, vma_allocation);
 			}
 
 			/**
@@ -53,8 +91,8 @@ namespace VGED {
 			 * @return VkResult of the buffer mapping call
 			 */
 			VkResult Buffer::map(VkDeviceSize size, VkDeviceSize offset) {
-				assert(buffer && memory && "Called map on buffer before create");
-				return vkMapMemory(device.device(), memory, offset, size, 0, &mapped);
+				assert(vk_buffer && vma_allocation && "Called map on buffer before create");
+				return vmaMapMemory(device.allocator(), vma_allocation, &mapped);
 			}
 
 			/**
@@ -64,7 +102,7 @@ namespace VGED {
 			 */
 			void Buffer::unmap() {
 				if (mapped) {
-					vkUnmapMemory(device.device(), memory);
+					vmaUnmapMemory(device.allocator(), vma_allocation);
 					mapped = nullptr;
 				}
 			}
@@ -78,11 +116,11 @@ namespace VGED {
 			 * @param offset (Optional) Byte offset from beginning of mapped region
 			 *
 			 */
-			void Buffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offset) {
+			void Buffer::write_to_buffer(void *data, VkDeviceSize size, VkDeviceSize offset) {
 				assert(mapped && "Cannot copy to unmapped buffer");
 
 				if (size == VK_WHOLE_SIZE) {
-					memcpy(mapped, data, bufferSize);
+					memcpy(mapped, data, buffer_size);
 				} else {
 					char *memOffset = (char *)mapped;
 					memOffset += offset;
@@ -102,12 +140,7 @@ namespace VGED {
 			 * @return VkResult of the flush call
 			 */
 			VkResult Buffer::flush(VkDeviceSize size, VkDeviceSize offset) {
-				VkMappedMemoryRange mappedRange = {};
-				mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-				mappedRange.memory = memory;
-				mappedRange.offset = offset;
-				mappedRange.size = size;
-				return vkFlushMappedMemoryRanges(device.device(), 1, &mappedRange);
+				return vmaFlushAllocation(device.allocator(), vma_allocation, offset, size);
 			}
 
 			/**
@@ -122,12 +155,7 @@ namespace VGED {
 			 * @return VkResult of the invalidate call
 			 */
 			VkResult Buffer::invalidate(VkDeviceSize size, VkDeviceSize offset) {
-				VkMappedMemoryRange mappedRange = {};
-				mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-				mappedRange.memory = memory;
-				mappedRange.offset = offset;
-				mappedRange.size = size;
-				return vkInvalidateMappedMemoryRanges(device.device(), 1, &mappedRange);
+				return vmaInvalidateAllocation(device.allocator(), vma_allocation, offset, size);
 			}
 
 			/**
@@ -138,50 +166,13 @@ namespace VGED {
 			 *
 			 * @return VkDescriptorBufferInfo of specified offset and range
 			 */
-			VkDescriptorBufferInfo Buffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset) {
+			VkDescriptorBufferInfo Buffer::descriptor_info(VkDeviceSize size, VkDeviceSize offset) {
 				return VkDescriptorBufferInfo{
-					buffer,
+					vk_buffer,
 					offset,
 					size,
 				};
 			}
-
-			/**
-			 * Copies "instanceSize" bytes of data to the mapped buffer at an offset of index * alignmentSize
-			 *
-			 * @param data Pointer to the data to copy
-			 * @param index Used in offset calculation
-			 *
-			 */
-			void Buffer::writeToIndex(void *data, int index) { writeToBuffer(data, instanceSize, index * alignmentSize); }
-
-			/**
-			 *  Flush the memory range at index * alignmentSize of the buffer to make it visible to the device
-			 *
-			 * @param index Used in offset calculation
-			 *
-			 */
-			VkResult Buffer::flushIndex(int index) { return flush(alignmentSize, index * alignmentSize); }
-
-			/**
-			 * Create a buffer info descriptor
-			 *
-			 * @param index Specifies the region given by index * alignmentSize
-			 *
-			 * @return VkDescriptorBufferInfo for instance at index
-			 */
-			VkDescriptorBufferInfo Buffer::descriptorInfoForIndex(int index) { return descriptorInfo(alignmentSize, index * alignmentSize); }
-
-			/**
-			 * Invalidate a memory range of the buffer to make it visible to the host
-			 *
-			 * @note Only required for non-coherent memory
-			 *
-			 * @param index Specifies the region to invalidate: index * alignmentSize
-			 *
-			 * @return VkResult of the invalidate call
-			 */
-			VkResult Buffer::invalidateIndex(int index) { return invalidate(alignmentSize, index * alignmentSize); }
 		}
 	}
 }

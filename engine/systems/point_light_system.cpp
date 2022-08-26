@@ -22,43 +22,33 @@ namespace VGED {
 			};
 
 			PointLightSystem::PointLightSystem(Device &_device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device{ _device } {
-				createPipelineLayout(globalSetLayout);
-				createPipeline(renderPass);
+				pipeline = std::make_unique<RasterPipeline>(device, RasterPipelineInfo {
+					.vertex_shader_info = {.source = ShaderFile {"shaders/point_light.vert"}},
+					.fragment_shader_info = { .source = ShaderFile {"shaders/point_light.frag"}},
+					.color_attachments = {
+						{ 
+							.format = ImageFormat::B8G8R8A8_SRGB, 
+							.blend = {
+								.blend_enable = true,
+								.src_color_blend_factor = BlendFactor::SRC_ALPHA,
+								.dst_color_blend_factor = BlendFactor::ONE_MINUS_SRC_ALPHA,
+							} 
+						}
+					},
+					.depth_test = {
+						.enable_depth_test = true,
+						.enable_depth_write = true,
+					},
+					.vk_render_pass = renderPass,
+					.pipeline_layout_info = {
+						.push_constant_size = sizeof(PointLightPushConstants),
+						.vk_descriptor_set_layouts = { globalSetLayout }
+					},
+					.vertex_input = { .binding = {}, .attribute = {} }
+				});
 			}
 
-			PointLightSystem::~PointLightSystem() { vkDestroyPipelineLayout(device.device(), pipelineLayout, nullptr); }
-
-			void PointLightSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
-				VkPushConstantRange pushConstantRange{};
-				pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-				pushConstantRange.offset = 0;
-				pushConstantRange.size = sizeof(PointLightPushConstants);
-
-				std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
-
-				VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-				pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-				pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-				pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-				pipelineLayoutInfo.pushConstantRangeCount = 1;
-				pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-				if (vkCreatePipelineLayout(device.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-					throw std::runtime_error("failed to create pipeline layout!");
-				}
-			}
-
-			void PointLightSystem::createPipeline(VkRenderPass renderPass) {
-				assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
-
-				PipelineConfigInfo pipelineConfig{};
-				Pipeline::defaultPipelineConfigInfo(pipelineConfig);
-				Pipeline::enableAlphaBlending(pipelineConfig);
-				pipelineConfig.attributeDescriptions.clear();
-				pipelineConfig.bindingDescriptions.clear();
-				pipelineConfig.renderPass = renderPass;
-				pipelineConfig.pipelineLayout = pipelineLayout;
-				lvePipeline = std::make_unique<Pipeline>(device, "shaders/point_light.vert.spv", "shaders/point_light.frag.spv", pipelineConfig);
-			}
+			PointLightSystem::~PointLightSystem() {}
 
 			void PointLightSystem::update(FrameInfo &frameInfo, GlobalUbo &ubo) {
 				auto rotateLight = glm::rotate(glm::mat4(1.f), 0.5f * frameInfo.frameTime, { 0.f, -1.f, 0.f });
@@ -96,9 +86,9 @@ namespace VGED {
 					sorted[disSquared] = obj.getId();
 				}
 
-				lvePipeline->bind(frameInfo.commandBuffer);
+				pipeline->bind(frameInfo.commandBuffer);
 
-				vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
+				vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipeline_layout(), 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
 				// iterate through sorted lights in reverse order
 				for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {
@@ -110,7 +100,7 @@ namespace VGED {
 					push.color = glm::vec4(obj.color, obj.pointLight->lightIntensity);
 					push.radius = obj.transform.scale.x;
 
-					vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PointLightPushConstants), &push);
+					vkCmdPushConstants(frameInfo.commandBuffer, pipeline->pipeline_layout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PointLightPushConstants), &push);
 					vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
 				}
 			}

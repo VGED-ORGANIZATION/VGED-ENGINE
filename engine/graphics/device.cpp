@@ -5,10 +5,13 @@
 #include <iostream>
 #include <set>
 #include <unordered_set>
+#include <limits>
 
 namespace VGED {
 	namespace Engine {
 		inline namespace Graphics {
+            static constexpr uint32_t VULKAN_API = VK_API_VERSION_1_3;
+
 			// local callback functions
 			static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
 																void *pUserData) {
@@ -70,7 +73,7 @@ namespace VGED {
 				appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 				appInfo.pEngineName = "No Engine";
 				appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-				appInfo.apiVersion = VK_API_VERSION_1_0;
+				appInfo.apiVersion = VULKAN_API;
 
 				VkInstanceCreateInfo createInfo = {};
 				createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -169,41 +172,21 @@ namespace VGED {
 				}
 
 				volkLoadDevice(vk_device);
-				volkLoadDeviceTable(&volk_device_table, vk_device);
+				//volkLoadDeviceTable(&volk_device_table, vk_device);
 
 				vkGetDeviceQueue(vk_device, indices.graphics_family, 0, &vk_graphics_queue);
 				vkGetDeviceQueue(vk_device, indices.present_family, 0, &vk_present_queue);
 			}
 
 			void Device::create_vma_allocator() {
-				VmaVulkanFunctions vma_vulkan_functions = {
-					.vkGetInstanceProcAddr = vkGetInstanceProcAddr,
-					.vkGetDeviceProcAddr = vkGetDeviceProcAddr,
-					.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
-					.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties,
-					.vkAllocateMemory = volk_device_table.vkAllocateMemory,
-					.vkFreeMemory = volk_device_table.vkFreeMemory,
-					.vkMapMemory = volk_device_table.vkMapMemory,
-					.vkUnmapMemory = volk_device_table.vkUnmapMemory,
-					.vkFlushMappedMemoryRanges = volk_device_table.vkFlushMappedMemoryRanges,
-					.vkInvalidateMappedMemoryRanges = volk_device_table.vkInvalidateMappedMemoryRanges,
-					.vkBindBufferMemory = volk_device_table.vkBindBufferMemory,
-					.vkBindImageMemory = volk_device_table.vkBindImageMemory,
-					.vkGetBufferMemoryRequirements = volk_device_table.vkGetBufferMemoryRequirements,
-					.vkGetImageMemoryRequirements = volk_device_table.vkGetImageMemoryRequirements,
-					.vkCreateBuffer = volk_device_table.vkCreateBuffer,
-					.vkDestroyBuffer = volk_device_table.vkDestroyBuffer,
-					.vkCreateImage = volk_device_table.vkCreateImage,
-					.vkDestroyImage = volk_device_table.vkDestroyImage,
-					.vkCmdCopyBuffer = volk_device_table.vkCmdCopyBuffer,
-					.vkGetBufferMemoryRequirements2KHR = volk_device_table.vkGetBufferMemoryRequirements2KHR,
-					.vkGetImageMemoryRequirements2KHR = volk_device_table.vkGetImageMemoryRequirements2KHR,
-					.vkBindBufferMemory2KHR = volk_device_table.vkBindBufferMemory2KHR,
-					.vkBindImageMemory2KHR = volk_device_table.vkBindImageMemory2KHR,
-					.vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2KHR,
-					.vkGetDeviceBufferMemoryRequirements = volk_device_table.vkGetDeviceBufferMemoryRequirements,
-					.vkGetDeviceImageMemoryRequirements = volk_device_table.vkGetDeviceImageMemoryRequirements,
-				};
+                /*VmaVulkanFunctions vma_vulkan_functions{};
+                vma_vulkan_functions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
+                vma_vulkan_functions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;*/
+
+                VmaVulkanFunctions vma_vulkan_functions = {
+                    .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
+                    .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
+                };
 
 				VmaAllocatorCreateInfo vma_allocator_create_info{
 					.flags = {},
@@ -215,10 +198,10 @@ namespace VGED {
 					.pHeapSizeLimit = nullptr,
 					.pVulkanFunctions = &vma_vulkan_functions,
 					.instance = vk_instance,
-					.vulkanApiVersion = VK_API_VERSION_1_3,
+					.vulkanApiVersion = VULKAN_API,
 				};
 
-				vmaCreateAllocator(&vma_allocator_create_info, &vma_allocator);
+				vmaCreateAllocator(&vma_allocator_create_info, &this->vma_allocator);
 			}
 
 			void Device::create_command_pool() {
@@ -427,32 +410,6 @@ namespace VGED {
 				}
 
 				throw std::runtime_error("failed to find suitable memory type!");
-			}
-
-			void Device::create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory) {
-				VkBufferCreateInfo bufferInfo{};
-				bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-				bufferInfo.size = size;
-				bufferInfo.usage = usage;
-				bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-				if (vkCreateBuffer(vk_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-					throw std::runtime_error("failed to create vertex buffer!");
-				}
-
-				VkMemoryRequirements memRequirements;
-				vkGetBufferMemoryRequirements(vk_device, buffer, &memRequirements);
-
-				VkMemoryAllocateInfo allocInfo{};
-				allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-				allocInfo.allocationSize = memRequirements.size;
-				allocInfo.memoryTypeIndex = find_memory_type(memRequirements.memoryTypeBits, properties);
-
-				if (vkAllocateMemory(vk_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-					throw std::runtime_error("failed to allocate vertex buffer memory!");
-				}
-
-				vkBindBufferMemory(vk_device, buffer, bufferMemory, 0);
 			}
 
 			VkCommandBuffer Device::begin_single_time_commands() {

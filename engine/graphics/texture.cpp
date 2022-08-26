@@ -18,10 +18,10 @@ namespace VGED {
 
 				mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
 
-				Buffer stagingBuffer{ device, 4, static_cast<uint32_t>(width * height), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT };
+				Buffer stagingBuffer{ device, 4, static_cast<uint32_t>(width * height), MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE };
 
 				stagingBuffer.map();
-				stagingBuffer.writeToBuffer(data);
+				stagingBuffer.write_to_buffer(data);
 
 				imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
 
@@ -42,7 +42,7 @@ namespace VGED {
 
 				transitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-				device.copy_buffer_to_image(stagingBuffer.getBuffer(), image, static_cast<uint>(width), static_cast<uint>(height), 1);
+				device.copy_buffer_to_image(stagingBuffer.get_buffer(), image, static_cast<uint>(width), static_cast<uint>(height), 1);
 
 				generateMipmaps();
 				imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

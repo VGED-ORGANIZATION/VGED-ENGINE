@@ -7,7 +7,7 @@ namespace VGED {
 		inline namespace Graphics {
 			class Buffer {
 			public:
-				Buffer(Device &_device, VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
+				Buffer(Device &_device, VkDeviceSize instanceSize, uint32_t instanceCount, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
 				~Buffer();
 
 				Buffer(const Buffer &) = delete;
@@ -16,39 +16,32 @@ namespace VGED {
 				VkResult map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 				void unmap();
 
-				void writeToBuffer(void *data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+				void write_to_buffer(void *data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 				VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-				VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+				VkDescriptorBufferInfo descriptor_info(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 				VkResult invalidate(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 
-				void writeToIndex(void *data, int index);
-				VkResult flushIndex(int index);
-				VkDescriptorBufferInfo descriptorInfoForIndex(int index);
-				VkResult invalidateIndex(int index);
-
-				VkBuffer getBuffer() const { return buffer; }
-				void *getMappedMemory() const { return mapped; }
-				uint32_t getInstanceCount() const { return instanceCount; }
-				VkDeviceSize getInstanceSize() const { return instanceSize; }
-				VkDeviceSize getAlignmentSize() const { return instanceSize; }
-				VkBufferUsageFlags getUsageFlags() const { return usageFlags; }
-				VkMemoryPropertyFlags getMemoryPropertyFlags() const { return memoryPropertyFlags; }
-				VkDeviceSize getBufferSize() const { return bufferSize; }
+				VkBuffer get_buffer() const { return vk_buffer; }
+				void *get_mapped_memory() const { return mapped; }
+				uint32_t get_instance_count() const { return instance_count; }
+				VkDeviceSize get_instance_size() const { return instance_size; }
+				VkDeviceSize get_alignment_size() const { return instance_size; }
+				VkMemoryPropertyFlags get_memory_property_flags() const { return memory_property_flags; }
+				VkDeviceSize get_buffer_size() const { return buffer_size; }
 
 			private:
-				static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
+				static VkDeviceSize get_alignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
 
 				Device &device;
 				void *mapped = nullptr;
-				VkBuffer buffer = VK_NULL_HANDLE;
-				VkDeviceMemory memory = VK_NULL_HANDLE;
+				VkBuffer vk_buffer = {};
+				VmaAllocation vma_allocation = {};
 
-				VkDeviceSize bufferSize;
-				uint32_t instanceCount;
-				VkDeviceSize instanceSize;
-				VkDeviceSize alignmentSize;
-				VkBufferUsageFlags usageFlags;
-				VkMemoryPropertyFlags memoryPropertyFlags;
+				VkDeviceSize buffer_size;
+				uint32_t instance_count;
+				VkDeviceSize instance_size;
+				VkDeviceSize alignment_size;
+				MemoryFlags memory_property_flags;
 			};
 		}
 	}

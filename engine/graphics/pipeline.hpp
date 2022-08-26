@@ -1,74 +1,23 @@
 #pragma once
 
+#include "vk_types.hpp"
 #include "device.hpp"
+#include "model.hpp"
+#include "../core/debug.hpp"
+#include "../core/result.hpp"
 
 #include <string>
 #include <vector>
-
 #include <filesystem>
 #include <variant>
-
-#include "vk_types.hpp"
-
-#include "../core/result.hpp"
+#include <fstream>
 
 #include <shaderc/shaderc.h>
 #include <shaderc/shaderc.hpp>
-#include <array>
-#include <fstream>
-#include <iostream>
-#include "../graphics/model.hpp"
 
 namespace VGED {
 	namespace Engine {
 		inline namespace Graphics {
-			struct PipelineConfigInfo {
-				PipelineConfigInfo() = default;
-				PipelineConfigInfo(const PipelineConfigInfo &) = delete;
-				PipelineConfigInfo &operator=(const PipelineConfigInfo &) = delete;
-
-				std::vector<VkVertexInputBindingDescription> bindingDescriptions{};
-				std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
-				VkPipelineViewportStateCreateInfo viewportInfo;
-				VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-				VkPipelineRasterizationStateCreateInfo rasterizationInfo;
-				VkPipelineMultisampleStateCreateInfo multisampleInfo;
-				VkPipelineColorBlendAttachmentState colorBlendAttachment;
-				VkPipelineColorBlendStateCreateInfo colorBlendInfo;
-				VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
-				std::vector<VkDynamicState> dynamicStateEnables;
-				VkPipelineDynamicStateCreateInfo dynamicStateInfo;
-				VkPipelineLayout pipelineLayout = nullptr;
-				VkRenderPass renderPass = nullptr;
-				uint32_t subpass = 0;
-			};
-
-			class Pipeline {
-			public:
-				Pipeline(Device &_device, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
-				~Pipeline();
-
-				Pipeline(const Pipeline &) = delete;
-				Pipeline &operator=(const Pipeline &) = delete;
-
-				void bind(VkCommandBuffer commandBuffer);
-
-				static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
-				static void enableAlphaBlending(PipelineConfigInfo &configInfo);
-
-			private:
-				static std::vector<char> readFile(const std::string &filepath);
-
-				void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
-
-				void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
-
-				Device &device;
-				VkPipeline graphicsPipeline;
-				VkShaderModule vertShaderModule;
-				VkShaderModule fragShaderModule;
-			};
-
 			class ShaderIncluder : public shaderc::CompileOptions::IncluderInterface {
 				shaderc_include_result *GetInclude(const char *requested_source, shaderc_include_type type, const char *requesting_source, size_t include_depth) override {
 					// BS
@@ -112,10 +61,10 @@ namespace VGED {
 							in.seekg(0, std::ios::beg);
 							in.read(&code[0], size);
 						} else {
-							std::cout << "bruh" << std::endl;
+							THROW("File is empty!");
 						}
 					} else {
-						std::cout << "bruh" << std::endl;
+						THROW("Couldn't open a file!");
 					}
 					return code;
 				}

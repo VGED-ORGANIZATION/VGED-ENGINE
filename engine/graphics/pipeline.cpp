@@ -80,25 +80,25 @@ namespace VGED {
 				} else {
 					ShaderCode code = {};
 					if (auto shader_source = std::get_if<ShaderFile>(&shader_info.source)) {
-						auto ret = try_get_path_to_file(shader_source->path);
-						if (ret.is_err()) {
-							return ResultErr{ ret.message() };
+						auto path_result = try_get_path_to_file(shader_source->path);
+						if (path_result.is_err()) {
+							return ResultErr{ path_result.message() };
 						}
-                        path = ret.value();
-						auto code_ret = try_read_file(ret.value());
-						if (code_ret.is_err()) {
-							return ResultErr{ code_ret.message() };
+                        path = path_result.value();
+						auto code_result = try_read_file(path_result.value());
+						if (code_result.is_err()) {
+							return ResultErr{ code_result.message() };
 						}
-						code = code_ret.value();
+						code = code_result.value();
 					} else {
 						code = std::get<ShaderCode>(shader_info.source);
 					}
 
-					auto ret = compile_shader(code, shader_stage, path);
-					if (ret.is_err()) {
-						return ResultErr{ ret.message() };
+					auto compiled_spirv_result = compile_shader(code, shader_stage, path);
+					if (compiled_spirv_result.is_err()) {
+						return ResultErr{ compiled_spirv_result.message() };
 					}
-					spirv = ret.value();
+					spirv = compiled_spirv_result.value();
 				}
 
 				return spirv;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "device.hpp"
+#include "image.hpp"
 
 #include <memory>
 #include <string>
@@ -23,7 +24,7 @@ namespace VGED {
 
 				VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
 				VkRenderPass getRenderPass() { return renderPass; }
-				VkImageView getImageView(int index) { return swapChainImageViews[index]; }
+				VkImageView getImageView(int index) { return swapChainImageViews[index]->image_view(); }
 				size_t imageCount() { return swapChainImages.size(); }
 				VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
 				VkExtent2D getSwapChainExtent() { return swapChainExtent; }
@@ -59,11 +60,9 @@ namespace VGED {
 				std::vector<VkFramebuffer> swapChainFramebuffers;
 				VkRenderPass renderPass;
 
-				std::vector<VkImage> depthImages;
-				std::vector<VkDeviceMemory> depthImageMemorys;
-				std::vector<VkImageView> depthImageViews;
+				std::vector<std::unique_ptr<Image>> depthImages;
 				std::vector<VkImage> swapChainImages;
-				std::vector<VkImageView> swapChainImageViews;
+				std::vector<std::unique_ptr<ImageView>> swapChainImageViews;
 
 				Device &device;
 				VkExtent2D windowExtent;

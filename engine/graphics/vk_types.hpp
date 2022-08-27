@@ -412,7 +412,6 @@ enum class ImageViewType {
 	TYPE_1D_ARRAY = 4,
 	TYPE_2D_ARRAY = 5,
 	TYPE_CUBE_ARRAY = 6,
-	TYPE_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum class Filter {
@@ -587,4 +586,12 @@ struct RasterizerInfo {
 struct RenderAttachment {
 	ImageFormat format = {};
 	BlendInfo blend = {};
+};
+
+struct ImageMipArraySlice {
+	ImageAspectFlags image_aspect = ImageAspectFlagBits::COLOR;
+	u32 base_mip_level = 0;
+	u32 level_count = 1;
+	u32 base_array_layer = 0;
+	u32 layer_count = 1;
 };

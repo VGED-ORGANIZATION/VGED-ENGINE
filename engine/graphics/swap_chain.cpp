@@ -1,4 +1,5 @@
 #include "swap_chain.hpp"
+#include "graphics/vk_types.hpp"
 
 // std
 #include <array>
@@ -6,6 +7,7 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <set>
 #include <stdexcept>
 
@@ -29,21 +31,21 @@ namespace VGED {
 			}
 
 			SwapChain::~SwapChain() {
-				for (auto imageView : swapChainImageViews) {
+				/*for (auto imageView : swapChainImageViews) {
 					vkDestroyImageView(device.device(), imageView, nullptr);
 				}
-				swapChainImageViews.clear();
+				swapChainImageViews.clear();*/
 
 				if (swapChain != nullptr) {
 					vkDestroySwapchainKHR(device.device(), swapChain, nullptr);
 					swapChain = nullptr;
 				}
 
-				for (int i = 0; i < depthImages.size(); i++) {
+				/*for (int i = 0; i < depthImages.size(); i++) {
 					vkDestroyImageView(device.device(), depthImageViews[i], nullptr);
 					vkDestroyImage(device.device(), depthImages[i], nullptr);
 					vkFreeMemory(device.device(), depthImageMemorys[i], nullptr);
-				}
+				}*/
 
 				for (auto framebuffer : swapChainFramebuffers) {
 					vkDestroyFramebuffer(device.device(), framebuffer, nullptr);
@@ -178,20 +180,18 @@ namespace VGED {
 			void SwapChain::createImageViews() {
 				swapChainImageViews.resize(swapChainImages.size());
 				for (size_t i = 0; i < swapChainImages.size(); i++) {
-					VkImageViewCreateInfo viewInfo{};
-					viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-					viewInfo.image = swapChainImages[i];
-					viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-					viewInfo.format = swapChainImageFormat;
-					viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-					viewInfo.subresourceRange.baseMipLevel = 0;
-					viewInfo.subresourceRange.levelCount = 1;
-					viewInfo.subresourceRange.baseArrayLayer = 0;
-					viewInfo.subresourceRange.layerCount = 1;
-
-					if (vkCreateImageView(device.device(), &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
-						throw std::runtime_error("failed to create texture image view!");
-					}
+					swapChainImageViews[i] = std::make_unique<ImageView>(device, ImageViewInfo {
+						.type = ImageViewType::TYPE_2D,
+						.format = static_cast<ImageFormat>(swapChainImageFormat),
+						.image = swapChainImages[i],
+						.slice = {
+							.image_aspect = ImageAspectFlagBits::COLOR,
+							.base_mip_level = 0,
+							.level_count = 1,
+							.base_array_layer = 0,
+							.layer_count = 1,
+						}
+					});
 				}
 			}
 
@@ -256,7 +256,7 @@ namespace VGED {
 			void SwapChain::createFramebuffers() {
 				swapChainFramebuffers.resize(imageCount());
 				for (size_t i = 0; i < imageCount(); i++) {
-					std::array<VkImageView, 2> attachments = { swapChainImageViews[i], depthImageViews[i] };
+					std::array<VkImageView, 2> attachments = { swapChainImageViews[i]->image_view(), depthImages[i]->image_view() };
 
 					VkExtent2D swapChainExtent = getSwapChainExtent();
 					VkFramebufferCreateInfo framebufferInfo = {};
@@ -280,42 +280,18 @@ namespace VGED {
 				VkExtent2D swapChainExtent = getSwapChainExtent();
 
 				depthImages.resize(imageCount());
-				depthImageMemorys.resize(imageCount());
-				depthImageViews.resize(imageCount());
-
 				for (int i = 0; i < depthImages.size(); i++) {
-					VkImageCreateInfo imageInfo{};
-					imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-					imageInfo.imageType = VK_IMAGE_TYPE_2D;
-					imageInfo.extent.width = swapChainExtent.width;
-					imageInfo.extent.height = swapChainExtent.height;
-					imageInfo.extent.depth = 1;
-					imageInfo.mipLevels = 1;
-					imageInfo.arrayLayers = 1;
-					imageInfo.format = depthFormat;
-					imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-					imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-					imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-					imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-					imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-					imageInfo.flags = 0;
-
-					device.create_image_with_info(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImages[i], depthImageMemorys[i]);
-
-					VkImageViewCreateInfo viewInfo{};
-					viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-					viewInfo.image = depthImages[i];
-					viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-					viewInfo.format = depthFormat;
-					viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-					viewInfo.subresourceRange.baseMipLevel = 0;
-					viewInfo.subresourceRange.levelCount = 1;
-					viewInfo.subresourceRange.baseArrayLayer = 0;
-					viewInfo.subresourceRange.layerCount = 1;
-
-					if (vkCreateImageView(device.device(), &viewInfo, nullptr, &depthImageViews[i]) != VK_SUCCESS) {
-						throw std::runtime_error("failed to create texture image view!");
-					}
+					depthImages[i] = std::make_unique<Image>(device, ImageInfo {
+						.type = ImageType::TYPE_2D,
+						.format = static_cast<ImageFormat>(depthFormat),
+						.aspect = ImageAspectFlagBits::DEPTH,
+						.size = { swapChainExtent.width, swapChainExtent.height, 1 },
+						.mip_level_count = 1,
+						.array_layer_count = 1,
+						.sample_count = 1,
+						.usage = ImageUsageFlagBits::DEPTH_STENCIL_ATTACHMENT,
+						.memory_flags = MemoryFlagBits::DEDICATED_MEMORY,
+					});
 				}
 			}
 

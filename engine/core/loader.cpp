@@ -1,4 +1,5 @@
 #include "loader.hpp"
+#include "core/types.hpp"
 
 #include <dlfcn.h>
 
@@ -34,9 +35,11 @@ SharedLibrary::~SharedLibrary()
 }
 
 template <typename T>
-inline T SharedLibrary::get_function(std::string name)
+inline Result<T> SharedLibrary::get_function(std::string name)
 {
-    return (T) dlsym(dlptr_, name.c_str());
+    auto f = (T) dlsym(dlptr_, name.c_str());
+    if (f) return Result<T>::SUCCESS(f);
+    else return Result<T>::FAILURE();
 }
 
 Executable::Executable(

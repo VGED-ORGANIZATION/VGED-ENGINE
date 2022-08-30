@@ -15,7 +15,7 @@ Result<Script> ScriptManager::get_script(std::string &path) {
 	try {
 		load_script(path);
 		return get_script(path);
-	} catch (std::exception e) {
+	} catch (std::exception &e) {
 		THROW(e.what());
 	}
 
@@ -39,8 +39,7 @@ void ScriptManager::load_script(const std::string &path) {
 
 	ScriptObject script{ func, lib, path };
 
-	script_functions_.insert(
-		std::pair<std::string, ScriptObject>(path, script));
+	script_functions_.insert(std::make_pair(path, script));
 }
 
 void ScriptManager::unload_script(const std::string &path) {
@@ -50,7 +49,7 @@ void ScriptManager::unload_script(const std::string &path) {
 void ScriptNameRegistry::register_name(const std::string &path,
 									   const std::string &name) noexcept {
 
-	registry.insert(name, path);
+	registry.insert(std::pair(name, path));
 }
 
 void ScriptNameRegistry::unregister_name(const std::string &name) noexcept {

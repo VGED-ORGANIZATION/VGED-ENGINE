@@ -1,7 +1,7 @@
 Language: Cpp
 BasedOnStyle: LLVM
 
-UseTab: Always
+UseTab: Never
 TabWidth: 4
 IndentWidth: 4
 AccessModifierOffset: -4
@@ -15,6 +15,7 @@ CompactNamespaces: false
 NamespaceIndentation: None
 FixNamespaceComments: false
 AlignTrailingComments: false
+PointerAlignment: Left
 
 AllowShortIfStatementsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true

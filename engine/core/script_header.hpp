@@ -25,13 +25,13 @@ inline namespace Core {
 class Script {
 
 public:
-	Script() = delete;
+    Script() = delete;
 
-	virtual void init(void);
+    virtual void init(void);
 
-	virtual void update(std::size_t delta);
+    virtual void update(std::size_t delta);
 
-	virtual void destroy(void);
+    virtual void destroy(void);
 };
 
 /**

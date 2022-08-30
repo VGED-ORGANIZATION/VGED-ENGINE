@@ -4,9 +4,6 @@
 #include <cstdint>
 #include <string>
 
-namespace VGED {
-namespace Engine {
-inline namespace Core {
 inline namespace Types {
 
 using u8 = std::uint8_t;
@@ -27,71 +24,68 @@ using f64 = double;
 template <typename T> class Result {
 
 public:
-	/**
-	 * @brief Initialize a result as a failure;
-	 *
-	 */
-	Result();
+    /**
+     * @brief Initialize a result as a failure;
+     *
+     */
+    Result();
 
-	Result(T &value);
+    Result(T &value);
 
-	/**
-	 * @brief return a failure
-	 *
-	 * @return constexpr Result
-	 */
-	static inline constexpr Result FAILURE() { return Result{}; }
+    /**
+     * @brief return a failure
+     *
+     * @return constexpr Result
+     */
+    static inline constexpr Result FAILURE() { return Result{}; }
 
-	/**
-	 * @brief return a successful result and its value;
-	 *
-	 * @param val
-	 * @return constexpr Result
-	 */
-	static inline constexpr Result SUCCESS(T &val) { return Result{ val }; }
+    /**
+     * @brief return a successful result and its value;
+     *
+     * @param val
+     * @return constexpr Result
+     */
+    static inline constexpr Result SUCCESS(T &val) { return Result{ val }; }
 
-	/**
-	 * @brief get the value stored in the result. If the result failed, it will
-	 * return nullptr.
-	 *
-	 * @return T&
-	 */
-	inline T &operator*() {
-		if (!success_)
-			return nullptr;
-		return value_;
-	}
-	inline void operator=(const T &t) {
-		value_ = t;
-		success_ = true;
-	};
+    /**
+     * @brief get the value stored in the result. If the result failed, it will
+     * return nullptr.
+     *
+     * @return T&
+     */
+    inline T &operator*() {
+        if (!success_)
+            return nullptr;
+        return value_;
+    }
+    inline void operator=(const T &t) {
+        value_ = t;
+        success_ = true;
+    };
 
-	/**
-	 * @brief Expect the result to be successful. If not, it throws an
-	 * exception.
-	 *
-	 * @return T& the successful result;
-	 */
-	inline T &expect(const std::string err) {
-		if (success_)
-			return value_;
-		THROW(err);
-	};
+    /**
+     * @brief Expect the result to be successful. If not, it throws an
+     * exception.
+     *
+     * @return T& the successful result;
+     */
+    inline T &expect(const std::string err) {
+        if (success_)
+            return value_;
+        THROW(err);
+    };
 
-	/**
-	 * @brief Check if the result was successful;
-	 *
-	 * @return true
-	 * @return false
-	 */
-	inline bool was_success(void) { return success_; }
+    /**
+     * @brief Check if the result was successful;
+     *
+     * @return true
+     * @return false
+     */
+    inline bool was_success(void) { return success_; }
 
 private:
-	T value_;
-	bool success_;
+    T value_;
+    bool success_;
 };
 
 } // Types
-} // Core
-} // Engine
-} // VGED

@@ -1,7 +1,6 @@
-#include "vged.hpp"
+#include <vged.hpp>
 
 #include "stdexcept"
-#include "types.hpp"
 
 namespace VGED {
 namespace Engine {
@@ -19,22 +18,22 @@ enum LoadingModes { LOAD_LAZY = 0, LOAD_NOW };
 class SharedLibrary {
 
 public:
-	SharedLibrary(std::string path, LoadingModes mode = LOAD_LAZY);
-	~SharedLibrary();
+    SharedLibrary(std::string path, LoadingModes mode = LOAD_LAZY);
+    ~SharedLibrary();
 
-	/**
-	 * @brief Get the function object
-	 *
-	 * @tparam T the type of the function
-	 * @param name the name of the function
-	 * @return T a pointer to the function, or NULL
-	 */
-	template <typename T> Result<T> get_function(std::string name);
+    /**
+     * @brief Get the function object
+     *
+     * @tparam T the type of the function
+     * @param name the name of the function
+     * @return T a pointer to the function, or NULL
+     */
+    template <typename T> Result<T> get_function(std::string name);
 
-	const void *get_lib(void) { return dlptr_; }
+    const void *get_lib(void) { return dlptr_; }
 
 private:
-	void *dlptr_;
+    void *dlptr_;
 };
 
 /**
@@ -44,43 +43,43 @@ private:
 class Executable {
 
 public:
-	/**
-	 * @brief Construct a new Executable object
-	 *
-	 * @param path the path to the shared object
-	 * @param entryPoint the main function name
-	 * @param mode the method of loading the file
-	 */
-	Executable(std::string path, std::string entry_point = "main",
-			   LoadingModes mode = LOAD_LAZY);
+    /**
+     * @brief Construct a new Executable object
+     *
+     * @param path the path to the shared object
+     * @param entryPoint the main function name
+     * @param mode the method of loading the file
+     */
+    Executable(std::string path, std::string entry_point = "main",
+               LoadingModes mode = LOAD_LAZY);
 
-	~Executable(void);
+    ~Executable(void);
 
-	// TODO deep copy
-	Executable operator=(Executable &) = delete;
-	Executable(Executable &) = delete;
+    // TODO deep copy
+    Executable operator=(Executable &) = delete;
+    Executable(Executable &) = delete;
 
-	int run(std::vector<std::string> args);
+    int run(std::vector<std::string> args);
 
-	/**
-	 * @brief Change the libary loaded in the executable
-	 *
-	 * @param path the path to the new shared object
-	 * @return int
-	 */
-	int change_library(std::string path, LoadingModes load_mode = LOAD_LAZY);
+    /**
+     * @brief Change the libary loaded in the executable
+     *
+     * @param path the path to the new shared object
+     * @return int
+     */
+    int change_library(std::string path, LoadingModes load_mode = LOAD_LAZY);
 
-	/**
-	 * @brief Get the libary memory
-	 *
-	 * @return void*
-	 */
-	inline const SharedLibrary *get_libary(void) { return lib_; }
+    /**
+     * @brief Get the libary memory
+     *
+     * @return void*
+     */
+    inline const SharedLibrary *get_libary(void) { return lib_; }
 
 private:
-	SharedLibrary *lib_ = NULL;
-	std::string entry_point_;
-	LoadingModes load_mode_;
+    SharedLibrary *lib_ = NULL;
+    std::string entry_point_;
+    LoadingModes load_mode_;
 };
 
 } // HotLoader

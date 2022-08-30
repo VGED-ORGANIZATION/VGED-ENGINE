@@ -18,20 +18,18 @@
 
 #include <cstdlib>
 
-namespace VGED {
-namespace Engine {
-inline namespace Core {
-
 class Script {
 
-public:
-	Script() = delete;
+    public:
 
-	virtual void init(void);
+    Script() = delete;
 
-	virtual void update(std::size_t delta);
+    virtual void init(void);
 
-	virtual void destroy(void);
+    virtual void update(std::size_t delta);
+
+    virtual void destroy(void);
+
 };
 
 /**
@@ -46,9 +44,4 @@ using ScriptCreateFunctionPointer = Script (*)(void);
  *
  * @return Script
  */
-extern Script
-engine_get_script_object(void); // FIXME maybe extern "C"?? but warns
-
-} // Core
-} // Engine
-} // VGED
+extern Script engine_get_script_object(void); // FIXME maybe extern "C"?? but warns

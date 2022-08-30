@@ -10,24 +10,24 @@
 #include <vector>
 
 namespace VGED {
-	namespace Engine {
-		inline namespace System {
-			class PointLightSystem {
-			public:
-				PointLightSystem(Device &_device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-				~PointLightSystem();
+    namespace Engine {
+        inline namespace System {
+            class PointLightSystem {
+            public:
+                PointLightSystem(Device &_device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+                ~PointLightSystem();
 
-				PointLightSystem(const PointLightSystem &) = delete;
-				PointLightSystem &operator=(const PointLightSystem &) = delete;
+                PointLightSystem(const PointLightSystem &) = delete;
+                PointLightSystem &operator=(const PointLightSystem &) = delete;
 
-				void update(FrameInfo &frameInfo, GlobalUbo &ubo);
-				void render(FrameInfo &frameInfo);
+                void update(FrameInfo &frameInfo, GlobalUbo &ubo);
+                void render(FrameInfo &frameInfo);
 
-			private:
-				Device &device;
+            private:
+                Device &device;
 
-				std::unique_ptr<RasterPipeline> pipeline;
-			};
-		}
-	}
+                std::unique_ptr<RasterPipeline> pipeline;
+            };
+        }
+    }
 }

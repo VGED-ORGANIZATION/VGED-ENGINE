@@ -14,30 +14,30 @@
 using namespace VGED::Engine::Graphics;
 
 namespace VGED {
-	namespace Editor {
-		class EditorApp {
-		public:
-			static constexpr int WIDTH = 1280;
-			static constexpr int HEIGHT = 720;
+    namespace Editor {
+        class EditorApp {
+        public:
+            static constexpr int WIDTH = 1280;
+            static constexpr int HEIGHT = 720;
 
-			EditorApp();
-			~EditorApp();
+            EditorApp();
+            ~EditorApp();
 
-			EditorApp(const EditorApp &) = delete;
-			EditorApp &operator=(const EditorApp &) = delete;
+            EditorApp(const EditorApp &) = delete;
+            EditorApp &operator=(const EditorApp &) = delete;
 
-			void run();
+            void run();
 
-		private:
-			void loadGameObjects();
+        private:
+            void loadGameObjects();
 
-			VGED::Engine::Window lveWindow{ WIDTH, HEIGHT, "VGED Engine" };
-			Device lveDevice{ lveWindow };
-			Renderer lveRenderer{ lveWindow, lveDevice };
+            VGED::Engine::Window lveWindow{ WIDTH, HEIGHT, "VGED Engine" };
+            Device lveDevice{ lveWindow };
+            Renderer lveRenderer{ lveWindow, lveDevice };
 
-			std::unique_ptr<DescriptorPool> globalPool{};
-			std::unique_ptr<Texture> texture{};
-			GameObject::Map gameObjects;
-		};
-	}
+            std::unique_ptr<DescriptorPool> globalPool{};
+            std::unique_ptr<Texture> texture{};
+            GameObject::Map gameObjects;
+        };
+    }
 }

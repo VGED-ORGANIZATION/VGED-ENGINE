@@ -8,22 +8,22 @@
 #include <spdlog/fmt/ostr.h>
 
 namespace VGED {
-	namespace Engine {
-		inline namespace Core {
-			class Log {
-			public:
-				static bool init();
+    namespace Engine {
+        inline namespace Core {
+            class Log {
+            public:
+                static bool init();
 
-				inline static std::shared_ptr<spdlog::logger> &getLogger() { return m_EngineLogger; }
+                inline static std::shared_ptr<spdlog::logger> &getLogger() { return m_EngineLogger; }
 
-				inline static std::shared_ptr<spdlog::logger> &getAppLogger() { return m_AppLogger; }
+                inline static std::shared_ptr<spdlog::logger> &getAppLogger() { return m_AppLogger; }
 
-			private:
-				static std::shared_ptr<spdlog::logger> m_EngineLogger;
-				static std::shared_ptr<spdlog::logger> m_AppLogger;
-			};
-		}
-	}
+            private:
+                static std::shared_ptr<spdlog::logger> m_EngineLogger;
+                static std::shared_ptr<spdlog::logger> m_AppLogger;
+            };
+        }
+    }
 }
 
 #ifndef DISTRIBUTION // disables engine logging (currently its never disabled)

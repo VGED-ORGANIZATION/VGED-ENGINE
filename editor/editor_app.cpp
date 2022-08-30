@@ -7,6 +7,7 @@
 #include "../engine/graphics/imgui_layer.hpp"
 #include "../engine/systems/point_light_system.hpp"
 #include "../engine/systems/simple_render_system.hpp"
+#include "../engine/core/discord.hpp"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -30,6 +31,7 @@ namespace VGED {
 		EditorApp::EditorApp() {
 			globalPool = DescriptorPool::Builder(lveDevice).setMaxSets(1000).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000).build();
 			loadGameObjects();
+			Engine::RPC::init();
 		}
 
 		EditorApp::~EditorApp() {}
@@ -37,7 +39,7 @@ namespace VGED {
 		void EditorApp::run() {
 			std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (auto &uboBuffer : uboBuffers) {
-				uboBuffer = std::make_unique<Buffer>(lveDevice, sizeof(GlobalUbo), 1, MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE);
+				uboBuffer = std::make_unique<Buffer>(lveDevice.device(), lveDevice.allocator(), sizeof(GlobalUbo), 1, MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE);
 				uboBuffer->map();
 			}
 
@@ -54,10 +56,10 @@ namespace VGED {
 				DescriptorSetLayout::Builder(lveDevice).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT).build();
 
 			auto materialSetLayout = DescriptorSetLayout::Builder(lveDevice)
-										 .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-										 .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-										 .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-										 .build();
+				.addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.build();
 
 			std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (int i = 0; i < globalDescriptorSets.size(); i++) {
@@ -94,6 +96,8 @@ namespace VGED {
 
 				float aspect = lveRenderer.getAspectRatio();
 				camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+
+				Engine::RPC::update();
 
 				if (auto commandBuffer = lveRenderer.beginFrame()) {
 					int frameIndex = lveRenderer.getFrameIndex();

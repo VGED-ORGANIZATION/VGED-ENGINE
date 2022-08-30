@@ -13,40 +13,40 @@
 // because we haven't set one up anywhere else in the application, and we manage the
 // example state, otherwise all the functions could just be static helper functions if you prefered
 namespace VGED {
-	namespace Engine {
-		inline namespace Graphics {
-			static void check_vk_result(VkResult err) {
-				if (err == 0)
-					return;
-				fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
-				if (err < 0)
-					abort();
-			}
+    namespace Engine {
+        inline namespace Graphics {
+            static void check_vk_result(VkResult err) {
+                if (err == 0)
+                    return;
+                fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
+                if (err < 0)
+                    abort();
+            }
 
-			class ImguiLayer {
-			public:
-				ImguiLayer(Window &window, Device &_device, VkRenderPass renderPass, uint32_t imageCount);
-				~ImguiLayer();
+            class ImguiLayer {
+            public:
+                ImguiLayer(Window &window, Device &_device, VkRenderPass renderPass, uint32_t imageCount);
+                ~ImguiLayer();
 
-				void newFrame();
+                void newFrame();
 
-				void render(VkCommandBuffer commandBuffer);
+                void render(VkCommandBuffer commandBuffer);
 
-				// Example state
-				bool show_demo_window = true;
-				bool show_another_window = false;
-				ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-				void runExample();
+                // Example state
+                bool show_demo_window = true;
+                bool show_another_window = false;
+                ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+                void runExample();
 
-			private:
-				Device &device;
+            private:
+                Device &device;
 
-				// We haven't yet covered descriptor pools in the tutorial series
-				// so I'm just going to create one for just imgui and store it here for now.
-				// maybe its preferred to have a separate descriptor pool for imgui anyway,
-				// I haven't looked into imgui best practices at all.
-				VkDescriptorPool descriptorPool;
-			};
-		}
-	}
+                // We haven't yet covered descriptor pools in the tutorial series
+                // so I'm just going to create one for just imgui and store it here for now.
+                // maybe its preferred to have a separate descriptor pool for imgui anyway,
+                // I haven't looked into imgui best practices at all.
+                VkDescriptorPool descriptorPool;
+            };
+        }
+    }
 }

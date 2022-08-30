@@ -1,21 +1,21 @@
 #pragma once
 
 namespace VGED {
-	namespace Engine {
-		class Scene {
-		public:
-			Scene();
-			~Scene();
+    namespace Engine {
+        class Scene {
+        public:
+            Scene();
+            ~Scene();
 
-		private:
-		};
+        private:
+        };
 
-		class Entity {
-		public:
-			Entity();
-			~Entity();
+        class Entity {
+        public:
+            Entity();
+            ~Entity();
 
-		private:
-		};
-	}
+        private:
+        };
+    }
 }

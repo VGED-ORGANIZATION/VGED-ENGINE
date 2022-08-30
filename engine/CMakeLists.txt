@@ -24,6 +24,7 @@ target_link_libraries(${PROJECT_NAME}
     shaderc
     imgui
     tinygltf
+    discord-rpc
 )
 
 # ############## Build SHADERS #######################

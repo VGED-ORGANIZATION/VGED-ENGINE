@@ -30,7 +30,7 @@ class SharedLibrary {
      * @return T a pointer to the function, or NULL
      */
     template <typename T>
-    inline T get_function(std::string name);
+    inline Result<T> get_function(std::string name);
 
     const void *get_lib(void) { return dlptr_; }
 

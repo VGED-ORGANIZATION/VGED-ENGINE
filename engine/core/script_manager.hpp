@@ -34,57 +34,53 @@ inline namespace Core {
  */
 class ScriptManager {
 
-    public:
+public:
+	ScriptManager() = delete;
+	~ScriptManager() = delete;
 
-    ScriptManager() = delete;
-    ~ScriptManager() = delete;
+	Result<Script> get_script(std::string &path);
+	void delete_script(std::string &path);
 
-    Result<Script> get_script(std::string& path);
-    void delete_script(std::string& path);
+private:
+	struct ScriptObject;
 
+	// store the function to create scripts for each object
+	std::map<std::string, ScriptObject> script_functions_;
 
-    private:
-    struct ScriptObject;
+	void load_script(const std::string &path);
+	void unload_script(const std::string &path);
 
-    // store the function to create scripts for each object
-    std::map<std::string, ScriptObject> script_functions_;
+	/**
+	 * @brief Store a script object and its reference count
+	 *
+	 */
+	struct ScriptObject {
 
-    void load_script(const std::string& path);
-    void unload_script(const std::string& path);
+		inline ScriptObject(ScriptCreateFunctionPointer f,
+							HotLoader::SharedLibrary l, std::string filename)
+			: func(f), lib{ l }, path{ filename } {}
 
-    /**
-     * @brief Store a script object and its reference count
-     *
-     */
-    struct ScriptObject {
-
-        inline ScriptObject(
-            ScriptCreateFunctionPointer f,
-            HotLoader::SharedLibrary l,
-            std::string filename) :
-            func(f), lib{l}, path{filename} {}
-
-        const ScriptCreateFunctionPointer func = nullptr;
-        size_t ref_count = 0;
-        const HotLoader::SharedLibrary lib;
-        const std::string path;
-    };
-
+		const ScriptCreateFunctionPointer func = nullptr;
+		size_t ref_count = 0;
+		const HotLoader::SharedLibrary lib;
+		const std::string path;
+	};
 };
 
 class ScriptNameRegistry {
 
-    public:
-    ScriptNameRegistry() = delete;
-    ~ScriptNameRegistry() = delete;
+public:
+	ScriptNameRegistry() = delete;
+	~ScriptNameRegistry() = delete;
 
-    void register_name(const std::string& path, const std::string& name) noexcept;
-    void unregister_name(const std::string& name) noexcept;
+	void register_name(const std::string &path,
+					   const std::string &name) noexcept;
+	void unregister_name(const std::string &name) noexcept;
 
-    Result<std::string> get_path(const std::string& name);
+	Result<std::string> get_path(const std::string &name);
 
-    private:
-    std::map<std::string, std::string> registry; // name, path
+private:
+	std::map<std::string, std::string> registry; // name, path
 };
 
 } // Core

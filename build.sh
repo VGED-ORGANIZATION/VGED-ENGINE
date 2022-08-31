@@ -37,7 +37,7 @@ if [[ $verboseOutput = "true" ]]
 then
   make VERBOSE=1
 else
-  make
+  make -s
 fi
 
 if [[ $target = "release" ]]

@@ -6,7 +6,7 @@ BUILDFDR = bin/Debug
 EXEC = editor
 
 default:
-	./build.sh
+	cmake --build $(BUILDFDR)
 
 run:
 	./$(BUILDFDR)/$(EXEC)

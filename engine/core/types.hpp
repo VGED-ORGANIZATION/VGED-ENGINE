@@ -21,6 +21,8 @@ using isize = std::ptrdiff_t;
 using f32 = float;
 using f64 = double;
 
+using b8 = unsigned char;
+
 template <typename T> class Result {
 
 public:
@@ -30,7 +32,7 @@ public:
      */
     Result();
 
-    Result(T &value);
+    Result(T& value);
 
     /**
      * @brief return a failure
@@ -45,7 +47,10 @@ public:
      * @param val
      * @return constexpr Result
      */
-    static inline constexpr Result SUCCESS(T &val) { return Result{ val }; }
+    template <typename Type>
+    static inline constexpr Result<Type> SUCCESS(Type& val) {
+        return Result<Type>{ val };
+    }
 
     /**
      * @brief get the value stored in the result. If the result failed, it will
@@ -53,23 +58,22 @@ public:
      *
      * @return T&
      */
-    inline T &operator*() {
+    inline T& operator*() {
         if (!success_)
             return nullptr;
         return value_;
     }
-    inline void operator=(const T &t) {
+    inline void operator=(const T& t) {
         value_ = t;
         success_ = true;
     };
-
     /**
      * @brief Expect the result to be successful. If not, it throws an
      * exception.
      *
      * @return T& the successful result;
      */
-    inline T &expect(const std::string err) {
+    inline T& expect(const std::string err) {
         if (success_)
             return value_;
         THROW(err);

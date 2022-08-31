@@ -23,6 +23,17 @@
 
 #pragma once
 
+#if defined(__unix) || defined(__APPLE__)
+#define OS_UNIX
+#elif defined(_WIN32)
+#define OS_WINDOWS
+#endif
+
+#if __has_include(<unistd.h>)
+#include <unistd.h>
+#define OS_POSIX
+#endif
+
 #include <iostream>
 #include "core/debug.hpp"
 

@@ -12,11 +12,11 @@ class Log {
 public:
     static bool init();
 
-    inline static std::shared_ptr<spdlog::logger> &getLogger() {
+    inline static std::shared_ptr<spdlog::logger>& getLogger() {
         return m_EngineLogger;
     }
 
-    inline static std::shared_ptr<spdlog::logger> &getAppLogger() {
+    inline static std::shared_ptr<spdlog::logger>& getAppLogger() {
         return m_AppLogger;
     }
 

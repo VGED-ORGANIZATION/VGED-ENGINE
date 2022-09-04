@@ -2,11 +2,11 @@
 
 DEBUGGER = gdb
 
-BUILDFDR = bin/Debug
+BUILDFDR = build/Debug
 EXEC = editor
 
 default:
-	cmake --build $(BUILDFDR)
+	make -C $(BUILDFDR) -s
 
 run:
 	./$(BUILDFDR)/$(EXEC)

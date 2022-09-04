@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11.0)
 project(engine VERSION 0.0.1)
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/*.hpp)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -9,7 +9,7 @@ add_library(${PROJECT_NAME} ${SOURCES})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 
-include_directories(${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME} PUBLIC
     ./
     ../vendor/
     ../vendor/spdlog/include/
@@ -17,7 +17,7 @@ include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    ${Vulkan_LIBRARIES} 
+    ${Vulkan_LIBRARIES}
     glfw
     glm
     imgui

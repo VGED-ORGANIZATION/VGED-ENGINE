@@ -3,8 +3,7 @@
 #include "core/debug.hpp"
 #include <cstdint>
 #include <string>
-
-inline namespace Types {
+#include "../utils/result.hpp"
 
 using u8 = std::uint8_t;
 using u16 = std::uint16_t;
@@ -23,73 +22,3 @@ using f64 = double;
 
 using b8 = unsigned char;
 
-template <typename T> class Result {
-
-public:
-    /**
-     * @brief Initialize a result as a failure;
-     *
-     */
-    Result();
-
-    Result(T& value);
-
-    /**
-     * @brief return a failure
-     *
-     * @return constexpr Result
-     */
-    static inline constexpr Result FAILURE() { return Result{}; }
-
-    /**
-     * @brief return a successful result and its value;
-     *
-     * @param val
-     * @return constexpr Result
-     */
-    template <typename Type>
-    static inline constexpr Result<Type> SUCCESS(Type& val) {
-        return Result<Type>{ val };
-    }
-
-    /**
-     * @brief get the value stored in the result. If the result failed, it will
-     * return nullptr.
-     *
-     * @return T&
-     */
-    inline T& operator*() {
-        if (!success_)
-            return nullptr;
-        return value_;
-    }
-    inline void operator=(const T& t) {
-        value_ = t;
-        success_ = true;
-    };
-    /**
-     * @brief Expect the result to be successful. If not, it throws an
-     * exception.
-     *
-     * @return T& the successful result;
-     */
-    inline T& expect(const std::string err) {
-        if (success_)
-            return value_;
-        THROW(err);
-    };
-
-    /**
-     * @brief Check if the result was successful;
-     *
-     * @return true
-     * @return false
-     */
-    inline bool was_success(void) { return success_; }
-
-private:
-    T value_;
-    bool success_;
-};
-
-} // Types

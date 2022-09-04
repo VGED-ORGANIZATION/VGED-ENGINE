@@ -19,7 +19,7 @@ Result<Script> ScriptManager::get_script(std::string &path) {
         THROW(e.what());
     }
 
-    return Result<Script>::FAILURE();
+    return Result<Script>(ResultErr("Script could not be loaded"));
 }
 
 void ScriptManager::delete_script(std::string &path) {
@@ -59,9 +59,9 @@ void ScriptNameRegistry::unregister_name(const std::string &name) noexcept {
 Result<std::string> ScriptNameRegistry::get_path(const std::string &name) {
 
     if (registry.contains(name))
-        return Result<std::string>::SUCCESS(registry.at(name));
+        return Result(registry.at(name));
     else
-        return Result<std::string>::FAILURE();
+        return Result<std::string>(ResultErr());
 }
 
 } // VGED::Engine

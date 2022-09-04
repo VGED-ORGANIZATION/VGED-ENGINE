@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <cstdio>
+#include <filesystem>
 
 namespace VGED {
 namespace Engine {
@@ -17,10 +18,10 @@ struct LoadedFile;
 
 std::list<LoadedFile> m_files;
 
-bool m_stop_thread = false; // used to stop the thread
-pthread_t m_testthread;
+volatile bool m_stop_thread = false; // used to stop the thread
+std::thread* m_testthread;
 
-void* thread_main(void* arg);
+void* thread_main();
 
 void init_manager(void) __attribute__((constructor));
 void terminate_manager(void) __attribute((destructor));
@@ -34,10 +35,9 @@ void check_for_reloads(void);
 void reload_file(LoadedFile& file);
 
 // handle file io
-void* load_file(const std::string& path, size_t& size);
+void* __attribute_nonnull__((2))
+    load_file(const std::string& path, size_t* size);
 void unload_file(void* mem);
-
-bool was_file_modified(const std::string& path, time_t loaded_time);
 
 u64 get_file_generation(const uid_t id);
 
@@ -74,13 +74,13 @@ struct LoadedFile {
      */
     size_t filesize;
     /**
-     * @brief The last time the file was reloaded
-     */
-    time_t last_loaded_time;
-    /**
      * @brief Store the number of times the file has been reloaded.
      */
     u32 file_generation;
+    /**
+     * @brief Store the last time the file was loaded
+     */
+    std::filesystem::file_time_type last_loaded_time;
 };
 
 }
@@ -145,63 +145,29 @@ std::size_t LiveFile::retrieve_size(void) {
 // LiveManager Implementation
 //
 
-void* thread_main(void* arg) {
+void* LiveFileManager::thread_main() {
+
+    std::cout << "Initialized live file" << std::endl;
 
     while (!LiveFileManager::m_stop_thread) {
         LiveFileManager::check_for_reloads();
-        sleep(1);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     return NULL;
 }
 
-void init_manager(void) {
+void __attribute__((constructor)) LiveFileManager::init_manager(void) {
 
-    pthread_create(&LiveFileManager::m_testthread, NULL,
-                   &LiveFileManager::thread_main, NULL);
+    m_testthread = new std::thread(thread_main);
 }
-void terminate_manager(void) {
+
+void __attribute__((destructor)) LiveFileManager::terminate_manager(void) {
     LiveFileManager::m_stop_thread = true;
 
-    pthread_join(LiveFileManager::m_testthread, NULL);
+    m_testthread->join();
 
     LiveFileManager::m_files.clear();
-}
-
-time_t get_file_modified_time(const std::string& path) {
-
-    time_t file_modified_time;
-#ifdef OS_POSIX
-#include <sys/stat.h>
-
-    struct stat buf;
-    if (stat(path.c_str(), &buf))
-        THROW("Must handle file deletion");
-    file_modified_time = buf.st_mtim.tv_sec;
-#elif OS_WINDOWS
-#include <fileapi.h>
-#include <errhandlingapi.h>
-
-    HANDLE f = CreateFileA(path.c_str(), GENERIC_READ, 0, 0, 0, OPEN_EXISTING,
-                           FILE_ATTRIBUTE_NORMAL, 0);
-    LPWORD
-
-    FILETIME buf;
-    GetFileTime(f, NULL, NULL, &buf);
-
-    if (GetLastError() == ERROR_FILE_NOT_FOUND) {
-        THROW("Must handle file deletion");
-    }
-
-    CloseHandle(f);
-
-    // convert windows api filetime to unix time
-    file_modified_time = (uint32_t)((buf - 116444736000000000l) / 10000000l);
-
-#else
-#error Unsupported os
-#endif
-    return file_modified_time;
 }
 
 Result<void*> LiveFileManager::access_file(const uid_t id) {
@@ -209,21 +175,19 @@ Result<void*> LiveFileManager::access_file(const uid_t id) {
     // find matching object in map
     for (auto f : LiveFileManager::m_files) {
         if (f.id == id)
-            return Result<void*>::SUCCESS(f.fileptr);
+            return Result(f.fileptr);
     }
-
-    VGED_ENGINE_ERROR("File with id %lu has not been loaded", id);
-    return Result<void*>::FAILURE();
+    return Result<void*>(ResultErr("File with id %lu has not been loaded", id));
 }
 
-Result<std::size_t> get_file_size(const uid_t id) {
+Result<std::size_t> LiveFileManager::get_file_size(const uid_t id) {
     // find matching object in map
     for (auto f : LiveFileManager::m_files) {
         if (f.id == id)
-            return Result<void*>::SUCCESS(f.filesize);
+            return Result(f.filesize);
     }
 
-    return Result<size_t>::FAILURE();
+    return Result<size_t>(ResultErr());
 }
 
 void LiveFileManager::check_for_reloads(void) {
@@ -232,23 +196,24 @@ void LiveFileManager::check_for_reloads(void) {
 
     for (auto f : LiveFileManager::m_files) {
 
-        time_t file_modified_time = get_file_modified_time(f.path);
-
         // reload file if it was modified
-        if (was_file_modified(f.path, f.last_loaded_time)) {
+        if (f.last_loaded_time < std::filesystem::last_write_time(f.path)) {
+            std::cout << "Change detected with " << f.path << std::endl;
             LiveFileManager::reload_file(f);
         }
     }
 }
 
 void LiveFileManager::reload_file(LoadedFile& f) {
+
     LiveFileManager::unload_file(f.fileptr);
-    LiveFileManager::load_file(f.path, f.filesize);
+    f.fileptr = LiveFileManager::load_file(f.path, &f.filesize);
     ++f.file_generation;
-    f.last_loaded_time = std::time(NULL);
+    f.last_loaded_time = std::filesystem::file_time_type::clock::now();
 }
 
-void* LiveFileManager::load_file(const std::string& path, size_t& size) {
+void* __attribute_nonnull__((2))
+    LiveFileManager::load_file(const std::string& path, size_t* size) {
 
     FILE* fp = fopen(path.c_str(), "r");
 
@@ -257,12 +222,12 @@ void* LiveFileManager::load_file(const std::string& path, size_t& size) {
     }
 
     fseek(fp, 0, SEEK_END);
-    size = ftell(fp);
+    *size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    void* mem = malloc(size);
+    void* mem = malloc(*size);
 
-    fread(mem, size, 1, fp);
+    fread(mem, *size, 1, fp);
 
     fclose(fp);
 
@@ -271,15 +236,7 @@ void* LiveFileManager::load_file(const std::string& path, size_t& size) {
 
 void LiveFileManager::unload_file(void* mem) { free(mem); }
 
-bool LiveFileManager::was_file_modified(const std::string& path,
-                                        time_t loaded_time) {
-    if (loaded_time < get_file_modified_time(path))
-        return true;
-    else
-        return false;
-}
-
-Result<uid_t> checkout_file(const std::string& path) {
+Result<uid_t> LiveFileManager::checkout_file(const std::string& path) {
 
     for (auto f : LiveFileManager::m_files) {
         if (f.path.compare(path) == 0) {
@@ -289,9 +246,10 @@ Result<uid_t> checkout_file(const std::string& path) {
     }
 
     size_t size;
-    void* fp = LiveFileManager::load_file(path, size);
+    void* fp = LiveFileManager::load_file(path, &size);
     if (fp == NULL)
-        return Result<uid_t>::FAILURE();
+        return Result<uid_t>(
+            ResultErr("File %s could not be loaded", path.c_str()));
 
     LiveFileManager::LoadedFile file_object{
         .reference_count = 1,
@@ -299,16 +257,16 @@ Result<uid_t> checkout_file(const std::string& path) {
         .path = path,
         .fileptr = fp,
         .filesize = size,
-        .last_loaded_time = time(NULL),
         .file_generation = 1,
+        .last_loaded_time = std::filesystem::file_time_type::clock::now()
     };
 
     LiveFileManager::m_files.push_back(file_object);
 
-    return Result<uid_t>::SUCCESS(file_object.id);
+    return Result(file_object.id);
 }
 
-Result<uid_t> checkout_file(const uid_t id) {
+Result<uid_t> LiveFileManager::checkout_file(const uid_t id) {
     for (auto f : LiveFileManager::m_files) {
         if (f.id == id) {
             ++f.reference_count;
@@ -317,10 +275,11 @@ Result<uid_t> checkout_file(const uid_t id) {
     }
 
     THROW("Invalid UID used when checkout out a file");
-    return Result<uid_t>::FAILURE();
+    return Result<uid_t>(
+        ResultErr("Invalid UID used when checkout out a file"));
 }
 
-void return_file(const uid_t id) {
+void LiveFileManager::return_file(const uid_t id) {
     for (auto f : LiveFileManager::m_files) {
         if (f.id == id) {
             --f.reference_count;
@@ -334,7 +293,7 @@ void return_file(const uid_t id) {
     }
 }
 
-void return_file(const std::string& path) {
+void LiveFileManager::return_file(const std::string& path) {
     for (auto f : LiveFileManager::m_files) {
         if (f.path.compare(path) == 0) {
             --f.reference_count;
@@ -348,7 +307,7 @@ void return_file(const std::string& path) {
     }
 }
 
-u64 get_file_generation(const uid_t id) {
+u64 LiveFileManager::get_file_generation(const uid_t id) {
 
     for (auto f : LiveFileManager::m_files) {
         if (f.id == id)

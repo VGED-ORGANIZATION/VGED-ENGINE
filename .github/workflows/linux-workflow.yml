@@ -2,7 +2,7 @@ name: 🐧VGED(Linux)
 
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, dev, file-loading]
   pull_request:
     branches: [ master ]
 

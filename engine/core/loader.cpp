@@ -28,9 +28,9 @@ SharedLibrary::~SharedLibrary() { dlclose(dlptr_); }
 template <typename T> Result<T> SharedLibrary::get_function(std::string name) {
     auto f = (T)dlsym(dlptr_, name.c_str());
     if (f)
-        return Result<T>::SUCCESS(f);
+        return Result(f);
     else
-        return Result<T>::FAILURE();
+        return Result<T>(ResultErr("No function named %s", name.c_str()));
 }
 
 Executable::Executable(std::string path, std::string entry_point,
@@ -45,7 +45,7 @@ Executable::~Executable() { delete lib_; }
 int Executable::run(std::vector<std::string> args) {
     int (*main)(int, char **) =
         lib_->get_function<int (*)(int, char **)>(entry_point_)
-            .expect("Library did not contain executable");
+            .expect(ResultErr("Library did not contain executable"));
 
     // convert args
     char *cargs[args.size()];

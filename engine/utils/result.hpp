@@ -65,7 +65,7 @@ public:
         if (v.has_value())
             return v.value();
         else
-            THROW("Result empty");
+            THROW(errmsg.message);
     }
 
     const std::string& message() const { return m; }

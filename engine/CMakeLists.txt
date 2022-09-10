@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 
+# target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -Wall -Wextra)
+# target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address)
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 
 target_include_directories(${PROJECT_NAME} PUBLIC

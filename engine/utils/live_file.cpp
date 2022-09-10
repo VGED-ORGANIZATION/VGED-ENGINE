@@ -3,6 +3,7 @@
 #include <ctime>
 #include <cstdio>
 #include <filesystem>
+#include <map>
 
 namespace VGED {
 namespace Engine {
@@ -16,7 +17,8 @@ namespace LiveFileManager {
 
 struct LoadedFile;
 
-std::list<LoadedFile> m_files;
+std::map<uid_t, std::unique_ptr<LoadedFile>> m_files;
+std::map<std::string, uid_t> m_path_registry;
 
 volatile bool m_stop_thread = false; // used to stop the thread
 std::thread* m_testthread;
@@ -26,18 +28,11 @@ void* thread_main();
 void init_manager(void) __attribute__((constructor));
 void terminate_manager(void) __attribute((destructor));
 
-Result<void*> access_file(const uid_t id);
+Result<const void*> access_file(const uid_t id);
 Result<std::size_t> get_file_size(const uid_t id);
 
 // iterate through files and check if any need to be reloaded
 void check_for_reloads(void);
-// reload the contents of a file
-void reload_file(LoadedFile& file);
-
-// handle file io
-void* __attribute_nonnull__((2))
-    load_file(const std::string& path, size_t* size);
-void unload_file(void* mem);
 
 u64 get_file_generation(const uid_t id);
 
@@ -49,38 +44,132 @@ Result<uid_t> checkout_file(const uid_t id);
 void return_file(const uid_t id);
 void return_file(const std::string& path);
 
-struct LoadedFile {
+/**
+ * @brief Basically a class
+ *
+ */
+class LoadedFile {
+
+public:
+    LoadedFile(const std::string& filepath) : path{ filepath } {
+
+        load_file(path);
+
+        // initialize values
+        id = Utils::UID::generate();
+        reference_count = 0;
+        last_loaded_time = std::filesystem::file_time_type::clock::now();
+        file_generation = 0;
+    }
+
+    LoadedFile(const std::string& filepath, uid_t _id) : path{ filepath } {
+
+        load_file(path);
+
+        // initialize values
+        id = _id;
+        reference_count = 0;
+        last_loaded_time = std::filesystem::file_time_type::clock::now();
+        file_generation = 0;
+    }
+
+    ~LoadedFile() { free(fileptr); }
 
     bool operator==(const LoadedFile& lf) { return id == lf.id; }
+    void* operator*(void) { return fileptr; }
+
+    // getters
+
+    // get the number of times the file has been reloaded
+    u32 get_generation(void) { return file_generation; };
+    // get the unique id of the file
+    uid_t get_id(void) { return id; }
+    // get the size of the file, in bytes
+    std::size_t get_size(void) { return filesize; }
+    // get a void pointer to the contents of the file
+    const void* get_contents(void) { return fileptr; }
+    // get the path to the file
+    std::string& get_path(void) { return path; }
 
     /**
-     * @brief The number of references to file file in use
+     * @brief reload the file
+     *
+     * @return true
+     * @return false
      */
+    bool reload_file(void) __THROW {
+
+        file_generation++;
+        last_loaded_time = std::filesystem::file_time_type::clock::now();
+        free(fileptr);
+        return load_file(path);
+    }
+    /**
+     * @brief Check if the file needs to be reloaded
+     *
+     * @return true
+     * @return false
+     */
+    bool needs_reload(void) {
+        auto modified = std::filesystem::last_write_time(path);
+        if (modified.time_since_epoch() > last_loaded_time.time_since_epoch())
+            return true;
+        else
+            return false;
+    }
+
+    uid_t checkout_file(void) {
+        reference_count++;
+        return id;
+    }
+
+    void return_file(void) {
+        reference_count--;
+        if (reference_count == 0) {
+            // FIXME possibly unload
+        }
+    }
+
+    bool in_use(void) { return reference_count > 0; }
+
+private:
+    // used in accessing the file
     u32 reference_count;
-    /**
-     * @brief The files unique identifier
-     */
     uid_t id;
-    /**
-     * @brief The path to the file
-     */
+
+    // used to interface with the filesystem
     std::string path;
-    /**
-     * @brief The actual file data
-     */
     void* fileptr;
-    /**
-     * @brief The size of the loaded file
-     */
     size_t filesize;
-    /**
-     * @brief Store the number of times the file has been reloaded.
-     */
+
+    // used to detect changes
     u32 file_generation;
-    /**
-     * @brief Store the last time the file was loaded
-     */
     std::filesystem::file_time_type last_loaded_time;
+
+    /**
+     * @brief Load a file into the object, from path
+     *
+     * @param path that path to the file
+     * @return true
+     * @return false
+     */
+    bool load_file(const std::string& path) {
+        FILE* fp = std::fopen(path.c_str(), "r");
+        if (fp == NULL)
+            return false;
+
+        // find file size
+        std::fseek(fp, 0, SEEK_END);
+        filesize = std::ftell(fp);
+        std::fseek(fp, 0, SEEK_SET);
+
+        // load data
+        fileptr = malloc(filesize);
+        if (fread(fileptr, filesize, 1, fp) == 0)
+            return false;
+
+        return true;
+    }
 };
 
 }
@@ -92,6 +181,7 @@ struct LoadedFile {
 LiveFile::LiveFile(const std::string& path) {
 
     m_id = LiveFileManager::checkout_file(path).expect("Handle me");
+    m_last_checked_generation = 0;
 }
 
 LiveFile::~LiveFile() { LiveFileManager::return_file(m_id); }
@@ -131,7 +221,7 @@ void LiveFile::reset_was_reloaded(void) {
     m_last_checked_generation = retrieve_generation();
 }
 
-void* LiveFile::retrieve_contents(void) {
+const void* LiveFile::retrieve_contents(void) {
     return LiveFileManager::access_file(m_id).expect(
         "Invalid file or handle deletion");
 }
@@ -151,7 +241,7 @@ void* LiveFileManager::thread_main() {
 
     while (!LiveFileManager::m_stop_thread) {
         LiveFileManager::check_for_reloads();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // FIXME hardcoded
     }
 
     return NULL;
@@ -164,157 +254,74 @@ void __attribute__((constructor)) LiveFileManager::init_manager(void) {
 
 void __attribute__((destructor)) LiveFileManager::terminate_manager(void) {
     LiveFileManager::m_stop_thread = true;
+    std::cout << "terminate called\n";
 
     m_testthread->join();
 
     LiveFileManager::m_files.clear();
 }
 
-Result<void*> LiveFileManager::access_file(const uid_t id) {
-
-    // find matching object in map
-    for (auto f : LiveFileManager::m_files) {
-        if (f.id == id)
-            return Result(f.fileptr);
-    }
-    return Result<void*>(ResultErr("File with id %lu has not been loaded", id));
+Result<const void*> LiveFileManager::access_file(const uid_t id) {
+    return Result(m_files.at(id)->get_contents());
 }
 
 Result<std::size_t> LiveFileManager::get_file_size(const uid_t id) {
-    // find matching object in map
-    for (auto f : LiveFileManager::m_files) {
-        if (f.id == id)
-            return Result(f.filesize);
+    try {
+        return Result(m_files.at(id)->get_size());
+    } catch (std::out_of_range e) {
+        return Result<size_t>(ResultErr());
     }
-
-    return Result<size_t>(ResultErr());
 }
 
 void LiveFileManager::check_for_reloads(void) {
-
-    time_t time = std::time(NULL);
-
-    for (auto f : LiveFileManager::m_files) {
+    for (auto& f : LiveFileManager::m_files) {
 
         // reload file if it was modified
-        if (f.last_loaded_time < std::filesystem::last_write_time(f.path)) {
-            std::cout << "Change detected with " << f.path << std::endl;
-            LiveFileManager::reload_file(f);
+        if (f.second->needs_reload()) {
+            std::cout << "Change detected with " << f.second->get_path()
+                      << std::endl; // FIXME debug
+            f.second->reload_file();
         }
     }
 }
-
-void LiveFileManager::reload_file(LoadedFile& f) {
-
-    LiveFileManager::unload_file(f.fileptr);
-    f.fileptr = LiveFileManager::load_file(f.path, &f.filesize);
-    ++f.file_generation;
-    f.last_loaded_time = std::filesystem::file_time_type::clock::now();
-}
-
-void* __attribute_nonnull__((2))
-    LiveFileManager::load_file(const std::string& path, size_t* size) {
-
-    FILE* fp = fopen(path.c_str(), "r");
-
-    if (fp == NULL) {
-        return NULL;
-    }
-
-    fseek(fp, 0, SEEK_END);
-    *size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    void* mem = malloc(*size);
-
-    fread(mem, *size, 1, fp);
-
-    fclose(fp);
-
-    return mem;
-}
-
-void LiveFileManager::unload_file(void* mem) { free(mem); }
 
 Result<uid_t> LiveFileManager::checkout_file(const std::string& path) {
 
-    for (auto f : LiveFileManager::m_files) {
-        if (f.path.compare(path) == 0) {
-            ++f.reference_count;
-            return f.id;
-        }
+    // check if the file has already been loaded
+    try {
+        const uid_t id = m_path_registry.at(path);
+        m_files.at(id)->checkout_file();
+        return id;
+    } catch (std::out_of_range e) {
+
+        uid_t id = Utils::UID::generate();
+
+        m_files
+            .insert(std::pair(
+                id, std::unique_ptr<LoadedFile>{ new LoadedFile(path, id) }))
+            .first->second->checkout_file();
+        m_path_registry.insert(std::pair(path, id));
+        return id;
     }
-
-    size_t size;
-    void* fp = LiveFileManager::load_file(path, &size);
-    if (fp == NULL)
-        return Result<uid_t>(
-            ResultErr("File %s could not be loaded", path.c_str()));
-
-    LiveFileManager::LoadedFile file_object{
-        .reference_count = 1,
-        .id = Utils::UID::generate(),
-        .path = path,
-        .fileptr = fp,
-        .filesize = size,
-        .file_generation = 1,
-        .last_loaded_time = std::filesystem::file_time_type::clock::now()
-    };
-
-    LiveFileManager::m_files.push_back(file_object);
-
-    return Result(file_object.id);
 }
 
 Result<uid_t> LiveFileManager::checkout_file(const uid_t id) {
-    for (auto f : LiveFileManager::m_files) {
-        if (f.id == id) {
-            ++f.reference_count;
-            return f.id;
-        }
-    }
-
-    THROW("Invalid UID used when checkout out a file");
-    return Result<uid_t>(
-        ResultErr("Invalid UID used when checkout out a file"));
+    m_files.at(id)->checkout_file();
+    return id;
 }
 
 void LiveFileManager::return_file(const uid_t id) {
-    for (auto f : LiveFileManager::m_files) {
-        if (f.id == id) {
-            --f.reference_count;
+    auto& f = m_files.at(id);
+    f->return_file();
 
-            // if there are 0 references, unload the file
-            if (f.reference_count <= 0) {
-                LiveFileManager::unload_file(f.fileptr);
-                LiveFileManager::m_files.remove(f);
-            }
-        }
-    }
-}
-
-void LiveFileManager::return_file(const std::string& path) {
-    for (auto f : LiveFileManager::m_files) {
-        if (f.path.compare(path) == 0) {
-            --f.reference_count;
-
-            // if there are 0 references, unload the file
-            if (f.reference_count <= 0) {
-                LiveFileManager::unload_file(f.fileptr);
-                LiveFileManager::m_files.remove(f);
-            }
-        }
+    // delete the file if unused
+    if (!f->in_use()) {
+        m_files.erase(id);
     }
 }
 
 u64 LiveFileManager::get_file_generation(const uid_t id) {
-
-    for (auto f : LiveFileManager::m_files) {
-        if (f.id == id)
-            return f.file_generation;
-    }
-
-    THROW("Invalid uid when checking for file");
+    return m_files.at(id)->get_generation();
 }
 
 } // inline Core

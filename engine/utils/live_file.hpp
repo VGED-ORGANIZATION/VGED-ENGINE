@@ -26,23 +26,6 @@ using namespace Utils::UID;
  */
 class LiveFile {
 
-    struct PointLight {
-        struct {float x, y, z;}  position;
-        float _align1_;
-
-        struct {float x, y, z;} color;
-        float intensity;
-
-        struct {float x, y, z;} ambient;
-        float _align2_;
-
-        struct {float x, y, z;} diffuse;
-        float linear;
-
-        struct {float x, y, z;} specular;
-        float quadratic;
-};
-
 public:
     LiveFile(const std::string& path);
     LiveFile(const LiveFile& f);
@@ -102,7 +85,7 @@ public:
      *
      * @return const void*
      */
-    void* retrieve_contents(void);
+    const void* retrieve_contents(void);
 
     /**
      * @brief Get the size object

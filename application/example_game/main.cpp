@@ -18,11 +18,10 @@ int main(int argc, char** argv) {
     while (true) {
 
         if (f.was_reloaded()) {
-
-            std::vector<char> mem(f.retrieve_size() + 1);
-            memcpy(mem.data(), f.retrieve_contents(), mem.size() - 1);
-            mem[mem.size() - 1] = '\0'; // add null terminator
-            std::cout << "New data: " << (char*)mem.data() << std::endl;
+            std::cout << "change reported, size: " << f.retrieve_size() << '\n';
+            struct stat s;
+            stat(argv[1], &s);
+            std::cout << "stat says size: " << s.st_size << std::endl;
         }
     }
 

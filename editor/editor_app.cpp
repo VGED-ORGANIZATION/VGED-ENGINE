@@ -39,7 +39,11 @@ namespace VGED {
 		void EditorApp::run() {
 			std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (auto &uboBuffer : uboBuffers) {
-				uboBuffer = std::make_unique<Buffer>(lveDevice.device(), lveDevice.allocator(), sizeof(GlobalUbo), 1, MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE);
+				uboBuffer = std::make_unique<Buffer>(lveDevice.device(), lveDevice.allocator(), BufferInfo {
+					.instance_size = sizeof(GlobalUbo),
+					.instance_count = 1,
+					.memory_flags = MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE
+				});
 				uboBuffer->map();
 			}
 

@@ -2,12 +2,10 @@
 #include <stdexcept>
 #include "device.hpp"
 //#define STB_IMAGE_IMPLEMENTATION
-#include "graphics/image.hpp"
 #include "graphics/vk_types.hpp"
 #include "stb_image.h"
 #include <cmath>
 #include "buffer.hpp"
-#include <stdexcept>
 
 namespace VGED {
     namespace Engine {
@@ -20,7 +18,13 @@ namespace VGED {
 
                 mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
 
-                Buffer stagingBuffer{ device.device(), device.allocator(), 4, static_cast<uint32_t>(width * height), MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE };
+                //Buffer stagingBuffer{ device.device(), device.allocator(), 4, static_cast<uint32_t>(width * height), MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE };
+
+                Buffer stagingBuffer{ device.device(), device.allocator(), BufferInfo {
+                    .instance_size = sizeof(u8) * 4,
+                    .instance_count = static_cast<uint32_t>(width * height),
+                    .memory_flags = MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE
+                }};
 
                 stagingBuffer.map();
                 stagingBuffer.write_to_buffer(data);

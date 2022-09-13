@@ -5,8 +5,6 @@
 #include "utils.hpp"
 
 // libs
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,6 +20,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #define STBI_MSC_SECURE_CRT
+//#define TINYGLTF_NO_STB_IMAGE
 #include <tinygltf/tiny_gltf.h>
 
 #ifndef ENGINE_DIR
@@ -48,12 +47,20 @@ namespace VGED {
                 VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
                 uint32_t vertexSize = sizeof(vertices[0]);
 
-                Buffer stagingBuffer{ device.device(), device.allocator(), vertexSize, vertexCount, MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE };
+                Buffer stagingBuffer{ device.device(), device.allocator(), BufferInfo {
+                    .instance_size = vertexSize,
+                    .instance_count = vertexCount,
+                    .memory_flags = MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE
+                }};
 
                 stagingBuffer.map();
                 stagingBuffer.write_to_buffer((void *)vertices.data());
 
-                vertexBuffer = std::make_unique<Buffer>(device.device(), device.allocator(), vertexSize, vertexCount, MemoryFlagBits::DEDICATED_MEMORY);
+                vertexBuffer = std::make_unique<Buffer>(device.device(), device.allocator(), BufferInfo {
+                    .instance_size = vertexSize,
+                    .instance_count = vertexCount,
+                    .memory_flags = MemoryFlagBits::DEDICATED_MEMORY
+                });
 
                 device.copy_buffer(stagingBuffer.get_buffer(), vertexBuffer->get_buffer(), bufferSize);
             }
@@ -69,12 +76,20 @@ namespace VGED {
                 VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
                 uint32_t indexSize = sizeof(indices[0]);
 
-                Buffer stagingBuffer{ device.device(), device.allocator(), indexSize, indexCount, MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE };
+                Buffer stagingBuffer{ device.device(), device.allocator(), BufferInfo {
+                    .instance_size = indexSize,
+                    .instance_count = indexCount,
+                    .memory_flags = MemoryFlagBits::HOST_ACCESS_SEQUENTIAL_WRITE
+                }};
 
                 stagingBuffer.map();
                 stagingBuffer.write_to_buffer((void *)indices.data());
 
-                indexBuffer = std::make_unique<Buffer>(device.device(), device.allocator(), indexSize, indexCount, MemoryFlagBits::DEDICATED_MEMORY);
+                indexBuffer = std::make_unique<Buffer>(device.device(), device.allocator(), BufferInfo {
+                    .instance_size = indexSize,
+                    .instance_count = indexCount,
+                    .memory_flags = MemoryFlagBits::DEDICATED_MEMORY
+                });
 
                 device.copy_buffer(stagingBuffer.get_buffer(), indexBuffer->get_buffer(), bufferSize);
             }

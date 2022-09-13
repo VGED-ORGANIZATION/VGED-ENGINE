@@ -7,9 +7,16 @@
 namespace VGED {
     namespace Engine {
         inline namespace Graphics {
+            struct BufferInfo {
+                u32 instance_size;
+                u32 instance_count;
+                MemoryFlags memory_flags;
+                u32 min_offset_alignment = 1;
+            };
+
             class Buffer {
             public:
-                Buffer(VkDevice _device, VmaAllocator _vma_allocator, VkDeviceSize instanceSize, uint32_t instanceCount, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
+                Buffer(VkDevice _device, VmaAllocator _vma_allocator, const BufferInfo& _info);
                 ~Buffer();
 
                 Buffer(const Buffer &) = delete;
@@ -25,10 +32,10 @@ namespace VGED {
 
                 VkBuffer get_buffer() const { return vk_buffer; }
                 void *get_mapped_memory() const { return mapped; }
-                uint32_t get_instance_count() const { return instance_count; }
-                VkDeviceSize get_instance_size() const { return instance_size; }
-                VkDeviceSize get_alignment_size() const { return instance_size; }
-                VkMemoryPropertyFlags get_memory_property_flags() const { return memory_property_flags; }
+                uint32_t get_instance_count() const { return info.instance_count; }
+                VkDeviceSize get_instance_size() const { return info.instance_size; }
+                VkDeviceSize get_alignment_size() const { return info.instance_size; }
+                VkMemoryPropertyFlags get_memory_property_flags() const { return info.memory_flags; }
                 VkDeviceSize get_buffer_size() const { return buffer_size; }
 
             private:
@@ -40,11 +47,12 @@ namespace VGED {
                 VkBuffer vk_buffer = {};
                 VmaAllocation vma_allocation = {};
 
+                BufferInfo info = {};
                 VkDeviceSize buffer_size;
-                uint32_t instance_count;
-                VkDeviceSize instance_size;
                 VkDeviceSize alignment_size;
-                MemoryFlags memory_property_flags;
+                /*uint32_t instance_count;
+                VkDeviceSize instance_size;
+                MemoryFlags memory_property_flags;*/
             };
         }
     }

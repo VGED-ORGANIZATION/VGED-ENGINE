@@ -30,10 +30,9 @@ namespace VGED {
                 return instanceSize;
             }
 
-            Buffer::Buffer(VkDevice _device, VmaAllocator _vma_allocator, VkDeviceSize instanceSize, uint32_t instanceCount, MemoryFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment)
-                : device{ _device }, vma_allocator{ _vma_allocator }, instance_size{ instanceSize }, instance_count{ instanceCount }, memory_property_flags{ memoryPropertyFlags } {
-                alignment_size = get_alignment(instanceSize, minOffsetAlignment);
-                buffer_size = alignment_size * instanceCount;
+            Buffer::Buffer(VkDevice _device, VmaAllocator _vma_allocator, const BufferInfo& _info) : device{ _device }, vma_allocator{ _vma_allocator }, info{_info} {
+                alignment_size = get_alignment(info.instance_size, info.min_offset_alignment);
+                buffer_size = alignment_size * info.instance_count;
 
                 VkBufferUsageFlags usage =
                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
@@ -64,7 +63,7 @@ namespace VGED {
                 };
 
                 VmaAllocationCreateInfo vma_allocation_create_info = {
-                    .flags = static_cast<VmaAllocationCreateFlags>(memory_property_flags),
+                    .flags = static_cast<VmaAllocationCreateFlags>(info.memory_flags),
                     .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
                     .memoryTypeBits = std::numeric_limits<u32>::max(),
                     .pool = nullptr,

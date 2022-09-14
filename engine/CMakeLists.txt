@@ -13,14 +13,18 @@ include_directories(${PROJECT_NAME}
     ./
     ../vendor/
     ../vendor/spdlog/include/
-    ${Vulkan_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    ${Vulkan_LIBRARIES} 
+    ${Vulkan_LIBRARIES}
     glfw
     glm
+    volk
+    VulkanMemoryAllocator
+    shaderc
     imgui
+    tinygltf
+    discord-rpc
 )
 
 # ############## Build SHADERS #######################

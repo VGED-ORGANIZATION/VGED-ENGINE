@@ -8,7 +8,6 @@ namespace VGED {
             ~Scene();
 
         private:
-            
         };
 
         class Entity {
@@ -17,7 +16,6 @@ namespace VGED {
             ~Entity();
 
         private:
-
         };
     }
 }

@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 
 namespace VGED {
@@ -40,8 +40,8 @@ private:
 #define VGED_ENGINE_FATAL(...)
 #endif
 
-#define VGED_TRACE(...) ::VGED::Log::getAppLogger()->trace(__VA_ARGS__)
-#define VGED_INFO(...) ::VGED::Log::getAppLogger()->info(__VA_ARGS__)
-#define VGED_WARN(...) ::VGED::Log::getAppLogger()->warn(__VA_ARGS__)
-#define VGED_ERROR(...) ::VGED::Log::getAppLogger()->error(__VA_ARGS__)
-#define VGED_FATAL(...) ::VGED::Log::getAppLogger()->fatal(__VA_ARGS__)
+#define VGED_TRACE(...) ::VGED::Engine::Core::Log::getAppLogger()->trace(__VA_ARGS__)
+#define VGED_INFO(...) ::VGED::Engine::Core::Log::getAppLogger()->info(__VA_ARGS__)
+#define VGED_WARN(...) ::VGED::Engine::Core::Log::getAppLogger()->warn(__VA_ARGS__)
+#define VGED_ERROR(...) ::VGED::Engine::Core::Log::getAppLogger()->error(__VA_ARGS__)
+#define VGED_FATAL(...) ::VGED::Engine::Core::Log::getAppLogger()->fatal(__VA_ARGS__)

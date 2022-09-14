@@ -1,13 +1,15 @@
 #include "vged.hpp"
 
-#include "first_app.hpp"
+#include "editor_app.hpp"
+
+using namespace VGED;
 
 int main() {
-    VGED::Log::init();
+    Log::init();
 
-    VGED_INFO("Vulkan Game Engine Dev!");
+    //VGED_INFO("Vulkan Game Engine Dev!");
 
-    lve::FirstApp app{};
+    VGED::Editor::EditorApp app{};
 
     try {
         app.run();

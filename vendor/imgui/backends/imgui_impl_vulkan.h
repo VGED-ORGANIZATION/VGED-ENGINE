@@ -2,8 +2,8 @@
 // This needs to be used along with a Platform Backend (e.g. GLFW, SDL, Win32, custom..)
 
 // Implemented features:
-//  [X] Renderer: Large meshes support (64k+ vertices) with 16-bit indices.
-//  [x] Renderer: Multi-viewport / platform windows. With issues (flickering when creating a new viewport).
+//  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bit indices.
+//  [x] Platform: Multi-viewport / platform windows. With issues (flickering when creating a new viewport).
 //  [!] Renderer: User texture binding. Use 'VkDescriptorSet' as ImTextureID. Read the FAQ about ImTextureID! See https://github.com/ocornut/imgui/pull/914 for discussions.
 
 // Important: on 32-bit systems, user texture binding is only supported if your imconfig file has '#define ImTextureID ImU64'.
@@ -37,13 +37,14 @@
 //     - Do not simply add it in a .cpp file!
 // (2) Call ImGui_ImplVulkan_LoadFunctions() before ImGui_ImplVulkan_Init() with your custom function.
 // If you have no idea what this is, leave it alone!
-//#define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
+#define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
 
 // Vulkan includes
 #if defined(IMGUI_IMPL_VULKAN_NO_PROTOTYPES) && !defined(VK_NO_PROTOTYPES)
 #define VK_NO_PROTOTYPES
 #endif
-#include <vulkan/vulkan.h>
+#define VK_NO_PROTOTYPES
+#include <volk.h>
 
 // Initialization data, for ImGui_ImplVulkan_Init()
 // [Please zero-clear before use!]
@@ -76,6 +77,7 @@ IMGUI_IMPL_API void         ImGui_ImplVulkan_SetMinImageCount(uint32_t min_image
 // Register a texture (VkDescriptorSet == ImTextureID)
 // FIXME: This is experimental in the sense that we are unsure how to best design/tackle this problem, please post to https://github.com/ocornut/imgui/pull/914 if you have suggestions.
 IMGUI_IMPL_API VkDescriptorSet ImGui_ImplVulkan_AddTexture(VkSampler sampler, VkImageView image_view, VkImageLayout image_layout);
+IMGUI_IMPL_API void ImGui_ImplVulkan_SetTexture(VkDescriptorSet* descriptor_set, VkSampler sampler, VkImageView image_view, VkImageLayout image_layout);
 
 // Optional: load Vulkan functions with a custom function loader
 // This is only useful with IMGUI_IMPL_VULKAN_NO_PROTOTYPES / VK_NO_PROTOTYPES
@@ -148,9 +150,8 @@ struct ImGui_ImplVulkanH_Window
 
     ImGui_ImplVulkanH_Window()
     {
-        memset((void*)this, 0, sizeof(*this));
-        PresentMode = (VkPresentModeKHR)~0;     // Ensure we get an error if user doesn't set this.
+        memset(reinterpret_cast<void*>(this), 0, sizeof(*this));
+        PresentMode = VK_PRESENT_MODE_MAX_ENUM_KHR;
         ClearEnable = true;
     }
 };
-

@@ -6,16 +6,18 @@ TabWidth: 4
 IndentWidth: 4
 AccessModifierOffset: -4
 IndentCaseLabels: false
-ColumnLimit: 80
+ColumnLimit: 0
 
 SortIncludes: false
 SortUsingDeclarations: false
 
 CompactNamespaces: false
-NamespaceIndentation: None
+
+NamespaceIndentation: All
 FixNamespaceComments: false
 AlignTrailingComments: false
 PointerAlignment: Left
+
 
 AllowShortIfStatementsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true

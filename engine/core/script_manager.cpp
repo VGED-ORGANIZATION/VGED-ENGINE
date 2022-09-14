@@ -1,66 +1,62 @@
+#include "script_manager.hpp"
 
-// namespace VGED::Engine {
+namespace VGED::Engine {
 
-// using HotLoader::SharedLibrary;
+    using HotLoader::SharedLibrary;
 
-// Result<Script> ScriptManager::get_script(std::string &path) {
-//     for (auto s : script_functions_) {
-//         if (s.second.path.compare(path) == 0) {
-//             Script fn = s.second.func();
-//             return fn;
-//         }
-//     }
+    Result<Script> ScriptManager::get_script(std::string& path) {
+        for (auto s : script_functions_) {
+            if (s.second.path.compare(path) == 0) {
+                Script fn = s.second.func();
+                return fn;
+            }
+        }
 
-//     try {
-//         load_script(path);
-//         return get_script(path);
-//     } catch (std::exception &e) {
-//         THROW(e.what());
-//     }
+        try {
+            load_script(path);
+            return get_script(path);
+        } catch (std::exception& e) {
+            THROW(e.what());
+        }
 
-//     return Result<Script>::FAILURE();
-// }
+        return ResultErr{ .message = { "Couldn't get a script" } };
+    }
 
-// void ScriptManager::delete_script(std::string &path) {
-//     ScriptObject &s = script_functions_.find(path)->second;
+    void ScriptManager::delete_script(std::string& path) {
+        ScriptObject& s = script_functions_.find(path)->second;
 
-//     if (--s.ref_count <= 0) {
-//         unload_script(path);
-//     }
-// }
+        if (--s.ref_count <= 0) {
+            unload_script(path);
+        }
+    }
 
-// void ScriptManager::load_script(const std::string &path) {
+    void ScriptManager::load_script(const std::string& path) {
 
-//     SharedLibrary lib{ path, HotLoader::LOAD_NOW };
-//     auto func = lib.get_function<ScriptCreateFunctionPointer>(
-//                        "engine_get_script_object")
-//                     .expect("Failed to find function in script"); // TODO handle
+        SharedLibrary lib{ path, HotLoader::LOAD_NOW };
+        auto func = lib.get_function<ScriptCreateFunctionPointer>("engine_get_script_object").value(); // TODO handle
 
-//     ScriptObject script{ func, lib, path };
+        ScriptObject script{ func, lib, path };
 
-//     script_functions_.insert(std::make_pair(path, script));
-// }
+        script_functions_.insert(std::make_pair(path, script));
+    }
 
-// void ScriptManager::unload_script(const std::string &path) {
-//     script_functions_.erase(path); // should auto call destructors? OOP smh
-// }
+    void ScriptManager::unload_script(const std::string& path) {
+        script_functions_.erase(path); // should auto call destructors? OOP smh
+    }
 
-// void ScriptNameRegistry::register_name(const std::string &path,
-//                                        const std::string &name) noexcept {
+    void ScriptNameRegistry::register_name(const std::string& path, const std::string& name) noexcept {
+        registry.insert(std::pair(name, path));
+    }
 
-//     registry.insert(std::pair(name, path));
-// }
+    void ScriptNameRegistry::unregister_name(const std::string& name) noexcept {
+        registry.erase(name);
+    }
 
-// void ScriptNameRegistry::unregister_name(const std::string &name) noexcept {
-//     registry.erase(name);
-// }
+    Result<std::string> ScriptNameRegistry::get_path(const std::string& name) {
+        if (registry.contains(name))
+            return registry.at(name);
+        else
+            return ResultErr{ .message = { "Couldn't get a path" } };
+    }
 
-// Result<std::string> ScriptNameRegistry::get_path(const std::string &name) {
-
-//     if (registry.contains(name))
-//         return Result<std::string>::SUCCESS(registry.at(name));
-//     else
-//         return Result<std::string>::FAILURE();
-// }
-
-// } // VGED::Engine
+} // VGED::Engine

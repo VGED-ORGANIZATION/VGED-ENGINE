@@ -3,15 +3,19 @@
 target=debug
 verboseOutput=false
 
-while getopts v:verbose: flag
+while getopts v flag
 do
     case "${flag}" in
         v) verboseOutput=true;;
-        a) verboseOutput=true;;
+        verbose) verboseOutput=true;;
     esac
 done
 
 if [[ $1 = "release" ]]
+then
+  target=release
+fi
+if [[ $2 = "release" ]]
 then
   target=release
 fi
@@ -20,16 +24,24 @@ fi
 if [[ $target = "release" ]]
 then
   echo "Building release target. Validation layers will be disabled"
-  cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+  cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release
+  cd build/Release
 else
   echo "Building debug target"
-  cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+  cmake -S . -B build/Debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+  mv build/Debug/compile_commands.json compile_commands.json
+  cd build/Debug
 fi
-cd build
-echo $verboseOutput
+
 if [[ $verboseOutput = "true" ]]
 then
   make VERBOSE=1
 else
   make
+fi
+
+if [[ $target = "release" ]]
+then
+  cd ../..
+  strip bin/Release/editor bin/Release/example_game
 fi

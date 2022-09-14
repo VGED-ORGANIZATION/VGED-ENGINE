@@ -5,9 +5,9 @@
 using namespace VGED;
 
 int main() {
-    VGED::Engine::Core::Log::init();
+    Log::init();
 
-    VGED_INFO("Vulkan Game Engine Dev!");
+    //VGED_INFO("Vulkan Game Engine Dev!");
 
     VGED::Editor::EditorApp app{};
 

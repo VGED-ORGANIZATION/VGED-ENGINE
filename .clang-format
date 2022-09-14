@@ -12,9 +12,12 @@ SortIncludes: false
 SortUsingDeclarations: false
 
 CompactNamespaces: false
+
 NamespaceIndentation: All
 FixNamespaceComments: false
 AlignTrailingComments: false
+PointerAlignment: Left
+
 
 AllowShortIfStatementsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true

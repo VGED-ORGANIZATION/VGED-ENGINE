@@ -13,6 +13,12 @@ execute_process(
         ${CMAKE_BINARY_DIR}/compile_commands.json
         ${CMAKE_SOURCE_DIR}/compile_commands.json
 )
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/Debug)
+else (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/Release)
+endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 add_subdirectory(vendor)
 add_subdirectory(engine)
